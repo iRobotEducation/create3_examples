@@ -98,41 +98,52 @@ class DanceCommandPublisher(Node):
         '''    
         super().__init__('dance_command_publisher')
         self.dance_choreographer = dance_choreographer
-        self.lights_publisher_ = self.create_publisher(LightringLeds, 'cmd_lightring', 10)
-        self.vel_publisher_ = self.create_publisher(Twist, 'cmd_vel', 10)
-        timer_period = 0.1  # seconds
+        self.lights_publisher = self.create_publisher(LightringLeds, 'cmd_lightring', 10)
+        self.vel_publisher = self.create_publisher(Twist, 'cmd_vel', 10)
+        timer_period = 0.05  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
-        self.dance_choreographer.start_dance(self.get_clock().now())
         self.last_twist = Twist()
-        self.last_leds = LightringLeds()
-        self.last_leds.override_system = False
+        self.last_lightring = LightringLeds()
+        self.last_lightring.override_system = False
+        self.ready = False
 
     def timer_callback(self):
-        next_actions = self.dance_choreographer.get_next_actions(self.get_clock().now())
+        current_time = self.get_clock().now()
+        # Set lights >= until populated in sim
+        if not self.ready:
+            if self.vel_publisher.get_subscription_count() > 0 and self.lights_publisher.get_subscription_count() >= 0:
+                self.get_logger().info('Subscribers connected, start dance at time %f' % (current_time.nanoseconds / float(1e9)))
+                self.ready = True
+                self.dance_choreographer.start_dance(current_time)
+            else:
+                self.get_logger().info('Waiting for publishers to connect to subscribers')
+                return
+        next_actions = self.dance_choreographer.get_next_actions(current_time)
         twist = self.last_twist
-        leds = self.last_leds
+        lightring = self.last_lightring
         for next_action in next_actions:
             if isinstance(next_action, Move):
                 twist = Twist()
                 twist.linear.x = next_action.x
                 twist.angular.z = next_action.theta
                 self.last_twist = twist
-                self.get_logger().info('New move action: %f, %f' % (twist.linear.x, twist.angular.z))
+                self.get_logger().info('Time %f New move action: %f, %f' % (current_time.nanoseconds / float(1e9), twist.linear.x, twist.angular.z))
             elif isinstance(next_action, Lights):
-                leds = LightringLeds()
-                leds.override_system = True
-                leds.leds = next_action.led_colors
-                self.last_leds = leds
-                self.get_logger().info('New lights action')
+                lightring = LightringLeds()
+                lightring.override_system = True
+                lightring.leds = next_action.led_colors
+                self.last_lightring = lightring
+                self.get_logger().info('Time %f New lights action, first led (%d,%d,%d)' % (current_time.nanoseconds / float(1e9), lightring.leds[0].red, lightring.leds[0].green, lightring.leds[0].blue))
             else:
                 twist = Twist()
                 twist.linear.x = 0.0
                 twist.angular.z = 0.0
                 self.last_twist = twist
-                leds = LightringLeds()
-                leds.override_system = False
-                self.last_leds = leds
-                self.get_logger().info('Finished Dance Sequence')
+                lightring = LightringLeds()
+                lightring.override_system = False
+                self.last_lightring = lightring
+                self.get_logger().info('Time %f Finished Dance Sequence' % (current_time.nanoseconds / float(1e9)))
 
-        self.vel_publisher_.publish(twist)
-        self.lights_publisher_.publish(leds)
+        lightring.header.stamp = current_time.to_msg()
+        self.vel_publisher.publish(twist)
+        self.lights_publisher.publish(lightring)
