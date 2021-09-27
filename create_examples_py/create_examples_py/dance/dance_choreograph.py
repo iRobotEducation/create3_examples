@@ -106,6 +106,7 @@ class DanceCommandPublisher(Node):
         self.last_lightring = LightringLeds()
         self.last_lightring.override_system = False
         self.ready = False
+        self.last_wait_subscriber_printout = None
 
     def timer_callback(self):
         current_time = self.get_clock().now()
@@ -115,8 +116,12 @@ class DanceCommandPublisher(Node):
                 self.get_logger().info('Subscribers connected, start dance at time %f' % (current_time.nanoseconds / float(1e9)))
                 self.ready = True
                 self.dance_choreographer.start_dance(current_time)
-            else:
+            elif not self.last_wait_subscriber_printout or ((current_time - self.last_wait_subscriber_printout).nanoseconds / float(1e9)) > 5.0:
+                # Only print once every 5 seconds
+                self.last_wait_subscriber_printout = current_time
                 self.get_logger().info('Waiting for publishers to connect to subscribers')
+                return
+            else:
                 return
         next_actions = self.dance_choreographer.get_next_actions(current_time)
         twist = self.last_twist
