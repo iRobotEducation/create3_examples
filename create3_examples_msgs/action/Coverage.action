@@ -1,0 +1,17 @@
+# Request
+builtin_interfaces/Duration max_duration
+---
+# Result
+bool success
+bool is_docked
+builtin_interfaces/Duration duration
+---
+# Feedback
+
+int32 DOCK = 0
+int32 DRIVE_STRAIGHT = 1
+int32 ROTATE = 2
+int32 SPIRAL = 3
+int32 UNDOCK = 4
+
+int32 current_behavior
