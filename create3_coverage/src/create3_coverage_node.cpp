@@ -62,12 +62,12 @@ Create3CoverageNode::Create3CoverageNode()
         "odom",
         rclcpp::SensorDataQoS(),
         std::bind(&Create3CoverageNode::odom_callback, this, _1));
-    /*
+
     m_kidnap_subscription = this->create_subscription<KidnapMsg>(
         "kidnap_status",
         rclcpp::SensorDataQoS(),
         std::bind(&Create3CoverageNode::kidnap_callback, this, _1));
-    */
+
     m_dock_msgs_received = false;
     m_is_running = false;
     m_last_behavior = -1;
