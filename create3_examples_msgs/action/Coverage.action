@@ -1,4 +1,11 @@
 # Request
+
+# The robot will explore the environment for `explore_duration` time.
+# After that, it will try to dock as soon as it sees the docking station.
+# The `max_duration` time defines when the behavior should end regardless of whether
+# the dock has been found or not. 
+
+builtin_interfaces/Duration explore_duration
 builtin_interfaces/Duration max_duration
 ---
 # Result

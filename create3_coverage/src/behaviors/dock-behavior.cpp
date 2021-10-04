@@ -46,16 +46,16 @@ State DockBehavior::execute(const Data & data)
     }
 
     if (m_dock_goal_handle_ready && !m_dock_goal_handle) {
-        RCLCPP_ERROR(m_logger, "dock goal was rejected by server");
+        RCLCPP_ERROR(m_logger, "Docking goal was rejected by server");
         return State::FAILURE;
     }
 
     if (m_dock_result_ready) {
         if (m_dock_result.code == rclcpp_action::ResultCode::SUCCEEDED) {
-            RCLCPP_INFO(m_logger, "docking succeeded!");
+            RCLCPP_INFO(m_logger, "Docking succeeded!");
             return State::SUCCESS;
         } else {
-            RCLCPP_ERROR(m_logger, "docking failed!");
+            RCLCPP_ERROR(m_logger, "Docking failed!");
             return State::FAILURE;
         }
     }
@@ -66,7 +66,7 @@ State DockBehavior::execute(const Data & data)
 void DockBehavior::cleanup()
 {
     // This behavior is being cancelled, so send a cancel request to dock action server if it's running
-    if (m_dock_goal_handle_ready && m_dock_goal_handle) {
+    if (!m_dock_result_ready && m_dock_goal_handle_ready && m_dock_goal_handle) {
         m_dock_action_client->async_cancel_goal(m_dock_goal_handle);
     }
 }

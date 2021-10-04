@@ -66,7 +66,7 @@ State UndockBehavior::execute(const Data & data)
 void UndockBehavior::cleanup()
 {
     // This behavior is being cancelled, so send a cancel request to dock action server if it's running
-    if (m_undock_goal_handle_ready && m_undock_goal_handle) {
+    if (!m_undock_result_ready && m_undock_goal_handle_ready && m_undock_goal_handle) {
         m_undock_action_client->async_cancel_goal(m_undock_goal_handle);
     }
 }

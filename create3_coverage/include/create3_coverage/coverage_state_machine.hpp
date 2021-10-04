@@ -67,7 +67,7 @@ private:
     rclcpp::Time m_last_spiral_time;
     bool m_preparing_spiral;
 
-    CoverageOutput m_output;
+    CoverageOutput m_coverage_output;
     create3_examples_msgs::action::Coverage::Goal m_goal;
     rclcpp::Time m_start_time;
 

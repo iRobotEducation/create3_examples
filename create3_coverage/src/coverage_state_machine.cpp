@@ -42,20 +42,21 @@ CoverageStateMachine::CoverageOutput CoverageStateMachine::execute(const Behavio
     }
 
     // Handle failure and success
-    if (m_output.state != State::RUNNING) {
-        return m_output;
+    if (m_coverage_output.state != State::RUNNING) {
+        return m_coverage_output;
     }
 
     m_behavior_state = m_current_behavior->execute(data);
-    m_output.current_behavior = m_current_behavior->get_id();
+    m_coverage_output.current_behavior = m_current_behavior->get_id();
 
-    return m_output;
+    return m_coverage_output;
 }
 
 void CoverageStateMachine::cancel()
 {
     if (m_current_behavior) {
         m_current_behavior->cleanup();
+        m_current_behavior.reset();
     }
 }
 
@@ -72,17 +73,21 @@ void CoverageStateMachine::select_next_behavior(const Behavior::Data& data)
 {
     // Keep going with the current behavior if it's still running
     if (m_behavior_state == State::RUNNING) {
-        m_output.state = State::RUNNING;
+        m_coverage_output.state = State::RUNNING;
         return;
     }
 
     // Check if it's time to wrap up the behavior
-    if (m_clock->now() - m_start_time >= m_goal.max_duration) {
-        if (data.dock.dock_visible) {
-            this->goto_dock();
-        } else {
-            m_output.state = State::SUCCESS;
-        }
+    bool explore_duration_elapsed = m_clock->now() - m_start_time >= m_goal.explore_duration;
+    bool max_duration_elapsed = m_clock->now() - m_start_time >= m_goal.max_duration;
+    if (max_duration_elapsed) {
+        m_coverage_output.state = State::SUCCESS;
+        return;
+    }
+    if (m_current_behavior->get_id() != FeedbackMsg::DOCK && 
+        explore_duration_elapsed && data.dock.dock_visible)
+    {
+        this->goto_dock();
         return;
     }
 
@@ -93,10 +98,10 @@ void CoverageStateMachine::select_next_behavior(const Behavior::Data& data)
             // A dock action should indicate the termination of the behavior.
             // Do not set a new behavior, either return SUCCESS or FAILURE.
             if (m_behavior_state == State::FAILURE || !data.dock.is_docked) {
-                m_output.state = State::FAILURE;
+                m_coverage_output.state = State::FAILURE;
                 break;
             }
-            m_output.state = State::SUCCESS;
+            m_coverage_output.state = State::SUCCESS;
             break;
         }
         case FeedbackMsg::DRIVE_STRAIGHT:
@@ -153,7 +158,7 @@ void CoverageStateMachine::select_next_behavior(const Behavior::Data& data)
         case FeedbackMsg::UNDOCK:
         {
             if (m_behavior_state == State::FAILURE || data.dock.is_docked) {
-                m_output.state = State::FAILURE;
+                m_coverage_output.state = State::FAILURE;
                 break;
             }
 
@@ -170,33 +175,33 @@ void CoverageStateMachine::select_next_behavior(const Behavior::Data& data)
 void CoverageStateMachine::goto_dock()
 {
     m_current_behavior = std::make_unique<DockBehavior>(m_dock_action_client, m_logger);
-    m_output.state = State::RUNNING;
+    m_coverage_output.state = State::RUNNING;
 }
 
 void CoverageStateMachine::goto_drive_straight(DriveStraightBehavior::Config config)
 {
     m_current_behavior = std::make_shared<DriveStraightBehavior>(config, m_cmd_vel_publisher, m_logger, m_clock);
-    m_output.state = State::RUNNING;
+    m_coverage_output.state = State::RUNNING;
 }
 
 void CoverageStateMachine::goto_rotate(RotateBehavior::Config config)
 {
     m_current_behavior = std::make_shared<RotateBehavior>(config, m_cmd_vel_publisher, m_logger, m_clock);
-    m_output.state = State::RUNNING;
+    m_coverage_output.state = State::RUNNING;
 }
 
 void CoverageStateMachine::goto_spiral(SpiralBehavior::Config config)
 {
     m_last_spiral_time = m_clock->now();
     m_current_behavior = std::make_shared<SpiralBehavior>(config, m_cmd_vel_publisher, m_logger, m_clock);
-    m_output.state = State::RUNNING;
+    m_coverage_output.state = State::RUNNING;
 }
 
 void CoverageStateMachine::goto_undock()
 {
     m_undocking = true;
     m_current_behavior = std::make_unique<UndockBehavior>(m_undock_action_client, m_logger);
-    m_output.state = State::RUNNING;
+    m_coverage_output.state = State::RUNNING;
 }
 
 } // namespace create3_coverage

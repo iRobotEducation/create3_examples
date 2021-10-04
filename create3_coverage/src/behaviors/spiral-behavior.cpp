@@ -19,21 +19,28 @@ SpiralBehavior::SpiralBehavior(
 
 State SpiralBehavior::execute(const Data & data)
 {
+    auto now = m_clock->now();
+    rclcpp::Duration spiral_time = now - m_start_time;
+    if (spiral_time > m_config.spiral_duration) {
+        RCLCPP_INFO(m_logger, "Spiral completed!");
+        return State::SUCCESS;
+    }
+
     // Pointing towards dock during spiral
     auto dock_front_detection = std::find_if(data.opcodes.begin(), data.opcodes.end(), [](const OpCodeMsg& msg){
         return (msg.sensor == OpCodeMsg::SENSOR_DIRECTIONAL_FRONT);
     });
-    bool driving_towards_dock = dock_front_detection != data.opcodes.end();
+    bool driving_towards_dock = (dock_front_detection != data.opcodes.end()) && data.dock.dock_visible;
     bool hazards_detected = !data.hazards.detections.empty();
 
     // Pointing towards dock or found hazard
     if (driving_towards_dock || hazards_detected) {
-        RCLCPP_INFO(m_logger, "Can't keep spiraling: hazard %d dock %d",
-        hazards_detected, driving_towards_dock);
+        RCLCPP_INFO(m_logger, "Stop spiraling: time spent %f/%f hazards %ld dock %d",
+        spiral_time.seconds(), m_config.spiral_duration.seconds(),
+        data.hazards.detections.size(), driving_towards_dock);
         return State::FAILURE;
     }
 
-    auto now = m_clock->now();
     if (now - m_last_radius_update_time > m_config.radius_increment_interval) {
         m_radius += m_config.radius_increment;
         m_last_radius_update_time = now;
@@ -47,11 +54,6 @@ State SpiralBehavior::execute(const Data & data)
         twist_msg->linear.x, twist_msg->angular.z);
 
     m_cmd_vel_publisher->publish(std::move(twist_msg));
-
-    if (now - m_start_time > m_config.spiral_duration) {
-        RCLCPP_INFO(m_logger, "Spiral completed!");
-        return State::SUCCESS;
-    }
 
     return State::RUNNING;
 }

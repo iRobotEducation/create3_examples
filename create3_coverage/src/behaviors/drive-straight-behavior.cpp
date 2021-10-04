@@ -46,14 +46,14 @@ State DriveStraightBehavior::execute(const Data & data)
     auto dock_front_detection = std::find_if(data.opcodes.begin(), data.opcodes.end(), [](const OpCodeMsg& msg){
         return (msg.sensor == OpCodeMsg::SENSOR_DIRECTIONAL_FRONT);
     });
-    bool driving_towards_dock = dock_front_detection != data.opcodes.end();
+    bool driving_towards_dock = (dock_front_detection != data.opcodes.end()) && data.dock.dock_visible;
     bool hazards_detected = !data.hazards.detections.empty();
 
     // Pointing towards dock or found hazard
     if (driving_towards_dock || hazards_detected) {
-        RCLCPP_INFO(m_logger, "Stop driving straight: traveled %f / %f: hazard %d dock %d",
+        RCLCPP_INFO(m_logger, "Stop driving straight: traveled %f/%f: hazards %ld dock %d",
             traveled_distance, m_config.max_distance,
-            hazards_detected, driving_towards_dock);
+            data.hazards.detections.size(), driving_towards_dock);
         
         // We are going to stop moving, we consider this a success or failure depending on how much we traveled
         if (traveled_distance >= m_config.min_distance) {
