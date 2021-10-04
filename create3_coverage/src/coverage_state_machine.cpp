@@ -3,6 +3,7 @@
 
 #include "create3_coverage/coverage_state_machine.hpp"
 #include "create3_coverage/utils.hpp"
+#include "tf2/utils.h"
 
 namespace create3_coverage {
 
@@ -124,9 +125,17 @@ void CoverageStateMachine::select_next_behavior(const Behavior::Data& data)
             // If we failed previous drive straight, let's use a random angle 
             auto rotate_config = RotateBehavior::Config();
             if (m_behavior_state == State::FAILURE) {
-                double random_num = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
-                double random_angle = random_num * 2 * M_PI - M_PI;
-                rotate_config.target_rotation = random_angle;
+                
+                // Check if we failed too many times consecutively
+                if (m_evade_attempts.size() > 20) {
+                    m_coverage_output.state = State::FAILURE;
+                    break;
+                } 
+
+                constexpr double evade_resolution = 0.175433; // 10 degrees
+                rotate_config.target_rotation = compute_evade_rotation(data.pose, evade_resolution);
+            } else {
+                m_evade_attempts.clear();
             }
             this->goto_rotate(rotate_config);
             break;
@@ -170,6 +179,52 @@ void CoverageStateMachine::select_next_behavior(const Behavior::Data& data)
             break;
         }
     }
+}
+
+double CoverageStateMachine::compute_evade_rotation(const geometry_msgs::msg::Pose& pose, double resolution)
+{
+    tf2::Quaternion current_orientation;
+    tf2::convert(pose.orientation, current_orientation);
+
+    // Add current orientation to the list of failed attempts
+    double current_yaw = tf2::getYaw(current_orientation);
+    m_evade_attempts.push_back(current_yaw);
+
+    tf2::Quaternion target_orientation;
+    size_t i = 0;
+    // We don't want this loop to search forever.
+    // Eventually, if we failed too many times, return an orientation regardless of how different it is
+    // from previous attempts.
+    while (i < 100) {
+        // Generate a new, random, target orientation
+        double random_num = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
+        double random_angle = random_num * 2 * M_PI - M_PI;
+        target_orientation.setRPY(0.0, 0.0, random_angle);
+
+        // Check if the random orientation is different enough from past evade attempts
+        bool valid_target = true;
+        for (double angle : m_evade_attempts) {
+            tf2::Quaternion attempt_orientation;
+            attempt_orientation.setRPY(0.0, 0.0, angle);
+
+            tf2::Quaternion relative_orientation = target_orientation * attempt_orientation.inverse();
+            double relative_yaw = tf2::getYaw(relative_orientation);
+            if (std::abs(relative_yaw) < std::abs(resolution)) {
+                valid_target = false;
+                break;
+            }
+        }
+
+        // Exit as soon as we find a valid target orientation
+        if (valid_target) {
+            break;
+        }
+        i++;
+    }
+
+    tf2::Quaternion relative_orientation = target_orientation * current_orientation.inverse();
+    double relative_yaw_rotation = tf2::getYaw(relative_orientation);
+    return relative_yaw_rotation;
 }
 
 void CoverageStateMachine::goto_dock()

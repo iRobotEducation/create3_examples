@@ -60,12 +60,15 @@ private:
 
     void goto_undock();
 
+    double compute_evade_rotation(const geometry_msgs::msg::Pose& pose, double resolution);
+
     std::shared_ptr<Behavior> m_current_behavior;
     State m_behavior_state;
 
     bool m_undocking;
     rclcpp::Time m_last_spiral_time;
     bool m_preparing_spiral;
+    std::vector<double> m_evade_attempts;
 
     CoverageOutput m_coverage_output;
     create3_examples_msgs::action::Coverage::Goal m_goal;
