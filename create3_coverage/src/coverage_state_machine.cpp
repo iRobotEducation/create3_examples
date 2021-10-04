@@ -143,7 +143,11 @@ void CoverageStateMachine::select_next_behavior(const Behavior::Data& data)
         }
         case FeedbackMsg::SPIRAL:
         {
-            this->goto_rotate(RotateBehavior::Config());
+            if (m_behavior_state == State::SUCCESS) {
+                this->goto_drive_straight(DriveStraightBehavior::Config());
+            } else {
+                this->goto_rotate(RotateBehavior::Config());
+            }
             break;
         }
         case FeedbackMsg::UNDOCK:
