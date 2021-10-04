@@ -6,7 +6,7 @@ The main purpose is to show how to command your robot and how to react to its ha
 
 ### How to use
 
-Build this and the `create3_examples_msgs` pacakges.
+Build this and the `create3_examples_msgs` packages.
 Source the setup shell scripts.
 
 Either place your robot on its dock or far from it (note: the behavior may fail or make the robot run over the dock if you start very close to it).
