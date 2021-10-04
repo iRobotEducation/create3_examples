@@ -82,8 +82,18 @@ Create3CoverageNode::handle_goal(
     (void)uuid;
     (void)goal;
 
+    bool is_kidnapped = false;
+    {
+        std::lock_guard<std::mutex> guard(m_mutex);
+        is_kidnapped = m_last_kidnap.is_kidnapped;
+    }
+    if (is_kidnapped) {
+        RCLCPP_WARN(this->get_logger(), "Rejecting goal request: robot is currently kidnapped");
+        return rclcpp_action::GoalResponse::REJECT;
+    }
+
     if (m_is_running.exchange(true)) {
-        RCLCPP_INFO(this->get_logger(), "Rejecting goal request, can only handle 1 goal at the time");
+        RCLCPP_WARN(this->get_logger(), "Rejecting goal request: can only handle 1 goal at the time");
         return rclcpp_action::GoalResponse::REJECT;
     }
 
@@ -160,9 +170,8 @@ void Create3CoverageNode::execute(const std::shared_ptr<GoalHandleCoverage> goal
 
         // Check if there is a cancel request
         if (goal_handle->is_canceling()) {
-            // Cleanup the state machine
+            m_is_running = false;
             state_machine->cancel();
-
             auto result = std::make_shared<CoverageAction::Result>();
             result->success = false;
             result->is_docked = is_docked;
@@ -172,13 +181,17 @@ void Create3CoverageNode::execute(const std::shared_ptr<GoalHandleCoverage> goal
             return;
         }
 
+        // Check if the robot is kidnapped
         if (is_kidnapped) {
-            RCLCPP_ERROR(this->get_logger(), "Aborting goal! Robot has been kidnapped!");
+            m_is_running = false;
+            state_machine->cancel();
             auto result = std::make_shared<CoverageAction::Result>();
             result->success = false;
             result->is_docked = is_docked;
             result->duration = this->now() - start_time;
             goal_handle->abort(result);
+            RCLCPP_ERROR(this->get_logger(), "Aborting goal! Robot has been kidnapped!");
+            return;
         }
 
         if (!m_dock_msgs_received) {
@@ -199,6 +212,7 @@ void Create3CoverageNode::execute(const std::shared_ptr<GoalHandleCoverage> goal
     RCLCPP_INFO(this->get_logger(), "Coverage action terminated");
 
     if (rclcpp::ok()) {
+        m_is_running = false;
         auto result = std::make_shared<CoverageAction::Result>();
         result->success = (output.state == State::SUCCESS);
         result->is_docked = is_docked;
