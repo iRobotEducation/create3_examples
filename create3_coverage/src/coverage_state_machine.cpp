@@ -86,11 +86,10 @@ void CoverageStateMachine::select_next_behavior(const Behavior::Data& data)
         return;
     }
 
-    DriveStraightBehavior::Config drive_config;
-    RotateBehavior::Config rotate_config;
     switch (m_current_behavior->get_id())
     {
         case FeedbackMsg::DOCK:
+        {
             // A dock action should indicate the termination of the behavior.
             // Do not set a new behavior, either return SUCCESS or FAILURE.
             if (m_behavior_state == State::FAILURE || !data.dock.is_docked) {
@@ -99,7 +98,9 @@ void CoverageStateMachine::select_next_behavior(const Behavior::Data& data)
             }
             m_output.state = State::SUCCESS;
             break;
+        }
         case FeedbackMsg::DRIVE_STRAIGHT:
+        {
             // If we just undocked, then we want to start with a spiral motion
             if (m_undocking) {
                 m_undocking = false;
@@ -107,16 +108,16 @@ void CoverageStateMachine::select_next_behavior(const Behavior::Data& data)
                 break;
             }
 
-            // We are trying to go to spiral, make sure that we moved enough from previous position (i.e. we are not trapped)
-            if (m_preparing_spiral && get_distance(m_preparing_spiral_pos, data.pose.position) >= 0.2) {
+            // If we were trying to get to spiral motion, do it only if drive straight succeeded (i.e. we moved enough from obstacle)
+            if (m_preparing_spiral && m_behavior_state == State::SUCCESS) {
                 m_preparing_spiral = false;
                 this->goto_spiral(SpiralBehavior::Config());
-                break;
+                break;  
             }
 
             // Usually after a DRIVE_STRAIGHT go to ROTATE
             // If we failed previous drive straight, let's use a random angle 
-            rotate_config = RotateBehavior::Config();
+            auto rotate_config = RotateBehavior::Config();
             if (m_behavior_state == State::FAILURE) {
                 double random_num = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
                 double random_angle = random_num * 2 * M_PI - M_PI;
@@ -124,38 +125,41 @@ void CoverageStateMachine::select_next_behavior(const Behavior::Data& data)
             }
             this->goto_rotate(rotate_config);
             break;
+        }
         case FeedbackMsg::ROTATE:
+        {
+            auto drive_config = DriveStraightBehavior::Config();
             // Check if it's time to go back spiraling, if it's the case we will do only a short DRIVE_STRAIGHT to
             // move away from current obstacle (rather than driving forever until a new obstacle is hit).
             // Alternatively we will go into DRIVE_STRAIGHT forever.
             if (m_clock->now() - m_last_spiral_time >= rclcpp::Duration(std::chrono::seconds(60))) {
-                drive_config = DriveStraightBehavior::Config();
-                drive_config.target_distance = 0.25;
-                drive_config.drive_forever = false;
+                drive_config.max_distance = 0.25;
+                drive_config.min_distance = 0.25;
                 m_preparing_spiral = true;
-                m_preparing_spiral_pos = data.pose.position;
-            } else {
-                drive_config = DriveStraightBehavior::Config();
-                drive_config.drive_forever = true;
             }
 
             this->goto_drive_straight(drive_config);
-            break;            
+            break;
+        }
         case FeedbackMsg::SPIRAL:
+        {
             this->goto_rotate(RotateBehavior::Config());
             break;
+        }
         case FeedbackMsg::UNDOCK:
+        {
             if (m_behavior_state == State::FAILURE || data.dock.is_docked) {
                 m_output.state = State::FAILURE;
                 break;
             }
 
             // After undocking, try to move away from the dock a little bit
-            drive_config = DriveStraightBehavior::Config();
-            drive_config.target_distance = 0.25;
-            drive_config.drive_forever = false;
+            auto drive_config = DriveStraightBehavior::Config();
+            drive_config.max_distance = 0.25;
+            drive_config.min_distance = 0.25;
             this->goto_drive_straight(drive_config);
             break;
+        }
     }
 }
 

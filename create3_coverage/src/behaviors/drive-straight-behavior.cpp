@@ -37,9 +37,9 @@ State DriveStraightBehavior::execute(const Data & data)
     }
 
     double traveled_distance = get_distance(m_initial_position, data.pose.position);
-    // Handle target distance if not requested to drive forever
-    if (!m_config.drive_forever && traveled_distance >= m_config.target_distance) {
-        RCLCPP_INFO(m_logger, "Reached drive straight target: %f", traveled_distance);
+    // Handle maximum traveled distance
+    if (traveled_distance >= m_config.max_distance) {
+        RCLCPP_INFO(m_logger, "Reached drive straight max distance: %f", traveled_distance);
         return State::SUCCESS;
     }
 
@@ -52,11 +52,11 @@ State DriveStraightBehavior::execute(const Data & data)
     // Pointing towards dock or found hazard
     if (driving_towards_dock || hazards_detected) {
         RCLCPP_INFO(m_logger, "Stop driving straight: traveled %f / %f: hazard %d dock %d",
-            traveled_distance, m_config.target_distance,
+            traveled_distance, m_config.max_distance,
             hazards_detected, driving_towards_dock);
         
         // We are going to stop moving, we consider this a success or failure depending on how much we traveled
-        if (traveled_distance >= m_config.target_distance) {
+        if (traveled_distance >= m_config.min_distance) {
             return State::SUCCESS;
         } else {
             return State::FAILURE;

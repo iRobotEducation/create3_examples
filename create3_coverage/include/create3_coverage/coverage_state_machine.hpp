@@ -66,7 +66,6 @@ private:
     bool m_undocking;
     rclcpp::Time m_last_spiral_time;
     bool m_preparing_spiral;
-    geometry_msgs::msg::Point m_preparing_spiral_pos;
 
     CoverageOutput m_output;
     create3_examples_msgs::action::Coverage::Goal m_goal;

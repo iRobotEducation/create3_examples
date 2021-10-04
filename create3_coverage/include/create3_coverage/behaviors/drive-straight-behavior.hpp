@@ -17,9 +17,9 @@ public:
 
     struct Config
     {
-        double target_distance {0.5};
+        double max_distance {5};
+        double min_distance {0.25};
         double linear_vel {0.25};
-        bool drive_forever {true};
         rclcpp::Duration clear_hazard_time {rclcpp::Duration(std::chrono::milliseconds(500))};
     };
 
