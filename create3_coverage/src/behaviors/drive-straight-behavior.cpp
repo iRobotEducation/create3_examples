@@ -20,18 +20,6 @@ DriveStraightBehavior::DriveStraightBehavior(
 State DriveStraightBehavior::execute(const Data & data)
 {
     if (!m_first_run) {
-
-        // The reflexes are taking too much time to clear the hazards
-        if (m_clock->now() - m_start_time > m_config.clear_hazard_time) {
-            RCLCPP_INFO(m_logger, "Aborting drive straight because initial hazard is not getting cleared");
-            return State::FAILURE;
-        }
-
-        // Wait for reflexes to clear the hazards
-        if (!data.hazards.detections.empty()) {
-            return State::RUNNING;
-        }
-
         m_first_run = true;
         m_initial_position = data.pose.position;
     }

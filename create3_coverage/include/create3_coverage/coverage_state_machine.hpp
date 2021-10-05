@@ -35,7 +35,8 @@ public:
         rclcpp::Logger logger,
         rclcpp_action::Client<DockAction>::SharedPtr dock_action_client,
         rclcpp_action::Client<UndockAction>::SharedPtr undock_action_client,
-        rclcpp::Publisher<TwistMsg>::SharedPtr cmd_vel_publisher);
+        rclcpp::Publisher<TwistMsg>::SharedPtr cmd_vel_publisher,
+        bool has_reflexes);
 
     ~CoverageStateMachine();
 
@@ -52,11 +53,11 @@ private:
 
     void goto_dock();
 
-    void goto_drive_straight(DriveStraightBehavior::Config config = DriveStraightBehavior::Config());
+    void goto_drive_straight(const DriveStraightBehavior::Config& config = DriveStraightBehavior::Config());
 
-    void goto_rotate(RotateBehavior::Config config = RotateBehavior::Config());
+    void goto_rotate(const RotateBehavior::Config& config = RotateBehavior::Config());
 
-    void goto_spiral(SpiralBehavior::Config config = SpiralBehavior::Config());
+    void goto_spiral(const SpiralBehavior::Config& config = SpiralBehavior::Config());
 
     void goto_undock();
 
@@ -73,6 +74,7 @@ private:
     CoverageOutput m_coverage_output;
     create3_examples_msgs::action::Coverage::Goal m_goal;
     rclcpp::Time m_start_time;
+    bool m_has_reflexes;
 
     rclcpp_action::Client<DockAction>::SharedPtr m_dock_action_client;
     rclcpp_action::Client<UndockAction>::SharedPtr m_undock_action_client;

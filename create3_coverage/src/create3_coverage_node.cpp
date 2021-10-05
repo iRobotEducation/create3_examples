@@ -121,23 +121,12 @@ void Create3CoverageNode::execute(const std::shared_ptr<GoalHandleCoverage> goal
 {
     RCLCPP_INFO(this->get_logger(), "Executing goal");
 
-    rclcpp::Rate loop_rate(10);
+    rclcpp::Rate loop_rate(30);
     const auto goal = goal_handle->get_goal();
     auto start_time = this->now();
 
-    // We need some reflexes to be enabled on the robot in order to run this behavior
-    bool reflexes_correctly_set = this->reflexes_setup();
-
-    // Abort immediately if we couldn't setup the robot reflexes
-    if (!reflexes_correctly_set) {
-        RCLCPP_ERROR(this->get_logger(), "Aborting goal! Unable to set reflexes");
-        auto result = std::make_shared<CoverageAction::Result>();
-        result->success = false;
-        result->duration = rclcpp::Duration::from_nanoseconds(0);
-        goal_handle->abort(result);
-    } else {
-        RCLCPP_INFO(this->get_logger(), "Reflexes setup correctly! Starting behavior!");
-    }
+    // Check if the robot has reflexes enabled or if we need to manually handle hazards
+    bool robot_has_reflexes = this->reflexes_setup();
 
     auto state_machine = std::make_unique<CoverageStateMachine>(
         *goal,
@@ -145,7 +134,8 @@ void Create3CoverageNode::execute(const std::shared_ptr<GoalHandleCoverage> goal
         this->get_logger(),
         m_dock_action_client,
         m_undock_action_client,
-        m_cmd_vel_publisher);
+        m_cmd_vel_publisher,
+        robot_has_reflexes);
 
     CoverageStateMachine::CoverageOutput output;
     output.state = State::RUNNING;
@@ -227,22 +217,52 @@ void Create3CoverageNode::execute(const std::shared_ptr<GoalHandleCoverage> goal
 
 bool Create3CoverageNode::reflexes_setup()
 {
-    // Before starting an action, we want to make sure that some reflexes are active
-    auto future = m_reflexes_param_client->set_parameters(
-        {
-            rclcpp::Parameter("reflexes.REFLEX_BUMP", true),
-            rclcpp::Parameter("reflexes.REFLEX_CLIFF", true),
-            rclcpp::Parameter("reflexes.REFLEX_WHEEL_DROP", true),
-            rclcpp::Parameter("reflexes_enabled", true)
-        });
-    
-    auto results = future.get();
-    bool success = true;
-    for (const rcl_interfaces::msg::SetParametersResult& res : results) {
-        success = success && res.successful;
+    bool robot_has_reflexes = true;
+
+    const std::vector<std::string> param_names = {
+        "reflexes.REFLEX_BUMP",
+        "reflexes.REFLEX_CLIFF",
+        "reflexes.REFLEX_WHEEL_DROP",
+        "reflexes_enabled"
+    };
+
+    // Check if reflexes are active
+    auto get_params_future = m_reflexes_param_client->get_parameters(param_names);
+    auto parameters = get_params_future.get();
+    bool all_enabled = true;
+    bool all_disabled = true;
+    for (const rclcpp::Parameter& param : parameters) {
+        all_enabled = all_enabled && param.as_bool();
+        all_disabled = all_disabled && !param.as_bool();
     }
 
-    return success;
+    if (all_enabled) {
+        robot_has_reflexes = true;
+        RCLCPP_INFO(this->get_logger(), "Reflexes are enabled on the robot!");
+    } else if (all_disabled) {
+        robot_has_reflexes = false;
+        RCLCPP_INFO(this->get_logger(), "Reflexes are disabled on the robot!");
+    } else {
+        // If some reflexes are enabled and some are disabled, activate them all.
+        RCLCPP_WARN(this->get_logger(), "Some reflexes were disabled, activating all of them");
+        std::vector<rclcpp::Parameter> parameters;
+        for (const std::string & name : param_names) {
+            parameters.push_back(rclcpp::Parameter(name, true));
+        }
+        auto set_params_future = m_reflexes_param_client->set_parameters(parameters);
+        auto results = set_params_future.get();
+        bool success = true;
+        for (const rcl_interfaces::msg::SetParametersResult& res : results) {
+            success = success && res.successful;
+        }
+
+        if (!success) {
+            throw std::runtime_error{"Unable to activate required parameters"};
+        }
+        robot_has_reflexes = true;
+    }
+
+    return robot_has_reflexes;
 }
 
 void Create3CoverageNode::dock_callback(DockMsg::ConstSharedPtr msg)

@@ -20,7 +20,6 @@ public:
         double max_distance {5};
         double min_distance {0.25};
         double linear_vel {0.25};
-        rclcpp::Duration clear_hazard_time {rclcpp::Duration(std::chrono::milliseconds(500))};
     };
 
     DriveStraightBehavior(

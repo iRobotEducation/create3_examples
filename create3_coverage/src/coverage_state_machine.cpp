@@ -13,13 +13,15 @@ CoverageStateMachine::CoverageStateMachine(
     rclcpp::Logger logger,
     rclcpp_action::Client<DockAction>::SharedPtr dock_action_client,
     rclcpp_action::Client<UndockAction>::SharedPtr undock_action_client,
-    rclcpp::Publisher<TwistMsg>::SharedPtr cmd_vel_publisher)
+    rclcpp::Publisher<TwistMsg>::SharedPtr cmd_vel_publisher,
+    bool has_reflexes)
     : m_logger(logger)
 {
     m_goal = goal;
 
     m_clock = clock;
     m_start_time = m_clock->now();
+    m_has_reflexes = has_reflexes;
 
     m_dock_action_client = dock_action_client;
     m_undock_action_client = undock_action_client;
@@ -137,11 +139,18 @@ void CoverageStateMachine::select_next_behavior(const Behavior::Data& data)
             } else {
                 m_evade_attempts.clear();
             }
+            rotate_config.robot_has_reflexes = m_has_reflexes;
             this->goto_rotate(rotate_config);
             break;
         }
         case FeedbackMsg::ROTATE:
         {
+            // A rotate failure indicates that we haven't been able to clear hazards
+            if (m_behavior_state == State::FAILURE) {
+                m_coverage_output.state = State::FAILURE;
+                break;
+            }            
+
             auto drive_config = DriveStraightBehavior::Config();
             // Check if it's time to go back spiraling, if it's the case we will do only a short DRIVE_STRAIGHT to
             // move away from current obstacle (rather than driving forever until a new obstacle is hit).
@@ -160,6 +169,8 @@ void CoverageStateMachine::select_next_behavior(const Behavior::Data& data)
             if (m_behavior_state == State::SUCCESS) {
                 this->goto_drive_straight(DriveStraightBehavior::Config());
             } else {
+                auto rotate_config = RotateBehavior::Config();
+                rotate_config.robot_has_reflexes = m_has_reflexes;
                 this->goto_rotate(RotateBehavior::Config());
             }
             break;
@@ -233,19 +244,19 @@ void CoverageStateMachine::goto_dock()
     m_coverage_output.state = State::RUNNING;
 }
 
-void CoverageStateMachine::goto_drive_straight(DriveStraightBehavior::Config config)
+void CoverageStateMachine::goto_drive_straight(const DriveStraightBehavior::Config& config)
 {
     m_current_behavior = std::make_shared<DriveStraightBehavior>(config, m_cmd_vel_publisher, m_logger, m_clock);
     m_coverage_output.state = State::RUNNING;
 }
 
-void CoverageStateMachine::goto_rotate(RotateBehavior::Config config)
+void CoverageStateMachine::goto_rotate(const RotateBehavior::Config& config)
 {
     m_current_behavior = std::make_shared<RotateBehavior>(config, m_cmd_vel_publisher, m_logger, m_clock);
     m_coverage_output.state = State::RUNNING;
 }
 
-void CoverageStateMachine::goto_spiral(SpiralBehavior::Config config)
+void CoverageStateMachine::goto_spiral(const SpiralBehavior::Config& config)
 {
     m_last_spiral_time = m_clock->now();
     m_current_behavior = std::make_shared<SpiralBehavior>(config, m_cmd_vel_publisher, m_logger, m_clock);

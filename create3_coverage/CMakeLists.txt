@@ -41,6 +41,7 @@ set(dependencies
 add_library(${library_name} SHARED
     src/behaviors/dock-behavior.cpp
     src/behaviors/drive-straight-behavior.cpp
+    src/behaviors/reflex-behavior.cpp
     src/behaviors/rotate-behavior.cpp
     src/behaviors/spiral-behavior.cpp
     src/behaviors/undock-behavior.cpp
