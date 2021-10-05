@@ -9,8 +9,6 @@ The main purpose is to show how to command your robot and how to react to its ha
 Build this and the `create3_examples_msgs` packages.
 Source the setup shell scripts.
 
-Either place your robot on its dock or far from it (note: the behavior may fail or make the robot run over the dock if you start very close to it).
-
 Start the coverage action server
 
 ```bash
@@ -22,3 +20,12 @@ In a separate terminal command a coverage action
 ```bash
 ros2 action send_goal /coverage create3_examples_msgs/action/Coverage "{explore_duration:{sec: 500, nanosec: 0}, max_duration:{sec: 1000,nanosec: 0}}"
 ```
+
+### Robot initial configuration
+
+Either place your robot on its dock or far from it (note: the behavior may fail or make the robot run over the dock if you start very close to it).
+
+Do not place the robot in contact with obstacles or onto a cliff.
+
+This example will check if the robot has some reflexes enabled.
+If they are not enabled, it will use simple backup maneuvers to move away from hazards.
