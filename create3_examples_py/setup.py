@@ -1,7 +1,7 @@
 from setuptools import setup
 from setuptools import find_packages
 
-package_name = 'create_examples_py'
+package_name = 'create3_examples_py'
 
 setup(
     name=package_name,
@@ -21,7 +21,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'create3_dance = create_examples_py.dance.create3_dance:main'
+            'create3_dance = create3_examples_py.dance.create3_dance:main'
         ],
     },
 )
