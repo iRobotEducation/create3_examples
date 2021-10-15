@@ -16,6 +16,8 @@
 #include "create3_coverage/behaviors/rotate-behavior.hpp"
 #include "tf2/utils.h"
 
+#include "utils.hpp"
+
 namespace create3_coverage {
 
 RotateBehavior::RotateBehavior(
@@ -30,17 +32,25 @@ RotateBehavior::RotateBehavior(
 
     m_first_run = false;
     m_start_time = m_clock->now();
+    m_hazards_count = 0;
 }
 
 State RotateBehavior::execute(const Data & data)
 {
+    if (m_hazards_count > m_config.max_hazard_retries) {
+        RCLCPP_INFO(m_logger, "Failed to clear hazard! Too many trials");
+        return State::FAILURE;
+    }
+
+    // Use reflexes to handle hazards if we have hazard detections
+    State reflex_state = handle_hazards(data);
+    // Handle RUNNING and FAILURE reflex states.
+    if (reflex_state != State::SUCCESS) {
+        return reflex_state;
+    }
+    m_reflex_behavior.reset();
+
     if (!m_first_run) {
-        // Use reflexes to handle hazards if we have hazard detections
-        State reflex_state = handle_hazards(data);
-        // Handle RUNNING and FAILURE reflex states.
-        if (reflex_state != State::SUCCESS) {
-            return reflex_state;
-        }
         // After reflex returns SUCCESS, we are ready to start the behavior
         m_first_run = true;
         tf2::convert(data.pose.orientation, m_initial_orientation);
@@ -59,11 +69,6 @@ State RotateBehavior::execute(const Data & data)
         return State::SUCCESS;
     }
 
-    // Found hazard while rotating!
-    if (!data.hazards.detections.empty()) {
-        RCLCPP_INFO(m_logger, "Found hazard during rotation!");
-        return State::FAILURE;
-    }
 
     RCLCPP_DEBUG(m_logger, "Rotating: current orientation %f progress %f/%f",
         tf2::getYaw(current_orientation), relative_yaw, m_config.target_rotation);
@@ -77,7 +82,7 @@ State RotateBehavior::execute(const Data & data)
 
 State RotateBehavior::handle_hazards(const Data & data)
 {
-    if (data.hazards.detections.empty() && !m_reflex_behavior) {
+    if (!is_front_hazard_active(data.hazards) && !m_reflex_behavior) {
         return State::SUCCESS;
     }
 
@@ -90,7 +95,7 @@ State RotateBehavior::handle_hazards(const Data & data)
         }
 
         // Return SUCCESS or RUNNING depending on whether the hazards have been cleared
-        if (data.hazards.detections.empty()) {
+        if (!is_front_hazard_active(data.hazards)) {
             return State::SUCCESS;
         } else {
             return State::RUNNING;
@@ -101,10 +106,13 @@ State RotateBehavior::handle_hazards(const Data & data)
 
         // Initialize the reflex behavior if necessary
         if (!m_reflex_behavior) {
+            m_hazards_count++;
             RCLCPP_INFO(m_logger, "Starting reflex behavior to clear hazard");
+
             auto config = ReflexBehavior::Config();
             config.clear_hazard_time = m_config.clear_hazard_time;
-            config.backup_distance = 0.1;
+            config.backup_distance = 0.05;
+            config.linear_vel = 0.1;
             m_reflex_behavior = std::make_unique<ReflexBehavior>(config, m_cmd_vel_publisher, m_logger, m_clock);
         }
 

@@ -12,7 +12,7 @@
 // limitations under the License.
 
 #include "create3_coverage/behaviors/drive-straight-behavior.hpp"
-#include "create3_coverage/utils.hpp"
+#include "utils.hpp"
 
 namespace create3_coverage {
 
@@ -44,12 +44,8 @@ State DriveStraightBehavior::execute(const Data & data)
         return State::SUCCESS;
     }
 
-    auto dock_front_detection = std::find_if(data.opcodes.begin(), data.opcodes.end(), [](const OpCodeMsg& msg){
-        return (msg.sensor == OpCodeMsg::SENSOR_DIRECTIONAL_FRONT);
-    });
-    bool driving_towards_dock = (dock_front_detection != data.opcodes.end()) && data.dock.dock_visible;
-    bool hazards_detected = !data.hazards.detections.empty();
-
+    bool driving_towards_dock = is_driving_towards_dock(data.opcodes);
+    bool hazards_detected = is_front_hazard_active(data.hazards);
     // Pointing towards dock or found hazard
     if (driving_towards_dock || hazards_detected) {
         RCLCPP_INFO(m_logger, "Stop driving straight: traveled %f/%f: hazards %ld dock %d",

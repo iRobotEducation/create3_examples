@@ -32,6 +32,7 @@ public:
         double target_rotation {0.785398};
         double angular_vel {0.6};
         bool robot_has_reflexes {false};
+        size_t max_hazard_retries {10};
         rclcpp::Duration clear_hazard_time {rclcpp::Duration(std::chrono::seconds(2))};
     };
 
@@ -60,6 +61,7 @@ private:
     tf2::Quaternion m_initial_orientation;
 
     std::unique_ptr<ReflexBehavior> m_reflex_behavior;
+    size_t m_hazards_count;
 
     rclcpp::Publisher<TwistMsg>::SharedPtr m_cmd_vel_publisher;
     rclcpp::Logger m_logger;

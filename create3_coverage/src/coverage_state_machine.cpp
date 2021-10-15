@@ -15,7 +15,6 @@
 #include <math.h>
 
 #include "create3_coverage/coverage_state_machine.hpp"
-#include "create3_coverage/utils.hpp"
 #include "tf2/utils.h"
 
 namespace create3_coverage {
@@ -184,7 +183,7 @@ void CoverageStateMachine::select_next_behavior(const Behavior::Data& data)
             } else {
                 auto rotate_config = RotateBehavior::Config();
                 rotate_config.robot_has_reflexes = m_has_reflexes;
-                this->goto_rotate(RotateBehavior::Config());
+                this->goto_rotate(rotate_config);
             }
             break;
         }

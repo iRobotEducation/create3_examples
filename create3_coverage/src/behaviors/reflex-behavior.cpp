@@ -12,7 +12,7 @@
 // limitations under the License.
 
 #include "create3_coverage/behaviors/reflex-behavior.hpp"
-#include "create3_coverage/utils.hpp"
+#include "utils.hpp"
 
 namespace create3_coverage {
 
@@ -35,19 +35,26 @@ State ReflexBehavior::execute(const Data & data)
     if (!m_first_run) {
         m_first_run = true;
         m_initial_position = data.pose.position;
+
+        if (!is_front_hazard_active(data.hazards)) {
+            RCLCPP_INFO(m_logger, "No need to run reflex");
+            return State::SUCCESS;
+        }
     }
 
-    // The reflexes are taking too much time to clear the hazards
-    if (m_clock->now() - m_start_time > m_config.clear_hazard_time) {
-        RCLCPP_INFO(m_logger, "Aborting reflexes because hazard is not getting cleared");
-        return State::FAILURE;
-    }
+    bool timeout = m_clock->now() - m_start_time > m_config.clear_hazard_time;
+    bool moved_enough = get_distance(data.pose.position, m_initial_position) > m_config.backup_distance;
+    bool limit_reached = backup_limit_reached(data.hazards);
 
-    bool hazards_detected = !data.hazards.detections.empty();
-    //bool backup_limit_reached
-    if (!hazards_detected) {
-        RCLCPP_INFO(m_logger, "Reflex successfully cleared hazard");
-        return State::SUCCESS; 
+    if (timeout || moved_enough || limit_reached) {
+        if (is_front_hazard_active(data.hazards)) {
+            RCLCPP_INFO(m_logger, "Reflex failed: was not able to clear hazard (timeout %d distance %d backup %d)",
+                timeout, moved_enough, limit_reached);
+            return State::FAILURE;
+        } else {
+            RCLCPP_INFO(m_logger, "Reflex successfully cleared hazard");
+            return State::SUCCESS;
+        }
     }
 
     // Command a negative velocity to backup from hazard
@@ -56,6 +63,16 @@ State ReflexBehavior::execute(const Data & data)
     m_cmd_vel_publisher->publish(std::move(twist_msg));
 
     return State::RUNNING;
+}
+
+bool ReflexBehavior::backup_limit_reached(const irobot_create_msgs::msg::HazardDetectionVector& hazards)
+{
+    auto limit_hazard = std::find_if(hazards.detections.begin(), hazards.detections.end(),
+        [](const irobot_create_msgs::msg::HazardDetection& detection){
+            return (detection.type == irobot_create_msgs::msg::HazardDetection::BACKUP_LIMIT);
+        });
+    
+    return limit_hazard != hazards.detections.end();
 }
 
 } // namespace create3_coverage

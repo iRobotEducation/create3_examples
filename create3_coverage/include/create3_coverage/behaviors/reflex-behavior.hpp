@@ -29,8 +29,8 @@ public:
 
     struct Config
     {
-        double backup_distance {0.1};
-        double linear_vel {0.25};
+        double backup_distance {0.05};
+        double linear_vel {0.1};
         rclcpp::Duration clear_hazard_time {rclcpp::Duration(std::chrono::seconds(2))};
     };
 
@@ -47,6 +47,8 @@ public:
     int32_t get_id() const override { return create3_examples_msgs::action::Coverage::Feedback::DRIVE_STRAIGHT; }
 
 private:
+    bool backup_limit_reached(const irobot_create_msgs::msg::HazardDetectionVector& hazards);
+
     Config m_config;
 
     bool m_first_run;

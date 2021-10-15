@@ -45,9 +45,9 @@ add_library(${library_name} SHARED
     src/behaviors/rotate-behavior.cpp
     src/behaviors/spiral-behavior.cpp
     src/behaviors/undock-behavior.cpp
+    src/behaviors/utils.cpp
     src/coverage_state_machine.cpp
     src/create3_coverage_node.cpp
-    src/utils.cpp
 )
 target_include_directories(${library_name} PUBLIC include)
 ament_target_dependencies(${library_name} ${dependencies})

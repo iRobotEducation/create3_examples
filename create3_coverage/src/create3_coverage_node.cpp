@@ -14,6 +14,8 @@
 #include "create3_coverage/coverage_state_machine.hpp"
 #include "create3_coverage/create3_coverage_node.hpp"
 
+#include "behaviors/utils.hpp"
+
 using std::placeholders::_1;
 using std::placeholders::_2;
 
@@ -81,9 +83,13 @@ Create3CoverageNode::Create3CoverageNode()
         rclcpp::SensorDataQoS(),
         std::bind(&Create3CoverageNode::kidnap_callback, this, _1));
 
+    m_rate_hz = this->declare_parameter<double>("rate_hz", 30);
+    m_opcodes_buffer_ms = this->declare_parameter<int>("opcodes_buffer_ms", 2000);
+
     m_dock_msgs_received = false;
     m_is_running = false;
     m_last_behavior = -1;
+    m_last_opcodes_cleared_time = this->now();
     RCLCPP_INFO(this->get_logger(), "Node created!");
 }
 
@@ -134,7 +140,7 @@ void Create3CoverageNode::execute(const std::shared_ptr<GoalHandleCoverage> goal
 {
     RCLCPP_INFO(this->get_logger(), "Executing goal");
 
-    rclcpp::Rate loop_rate(30);
+    rclcpp::Rate loop_rate(m_rate_hz);
     const auto goal = goal_handle->get_goal();
     auto start_time = this->now();
 
@@ -165,9 +171,12 @@ void Create3CoverageNode::execute(const std::shared_ptr<GoalHandleCoverage> goal
             data.pose = m_last_odom.pose.pose;
             data.opcodes = m_last_opcodes;
 
-            is_kidnapped = m_last_kidnap.is_kidnapped;
+            if (this->now() - m_last_opcodes_cleared_time >= rclcpp::Duration(std::chrono::milliseconds(m_opcodes_buffer_ms))) {
+                m_last_opcodes_cleared_time = this->now();
+                m_last_opcodes.clear();
+            }
 
-            m_last_opcodes.clear();
+            is_kidnapped = m_last_kidnap.is_kidnapped;
             is_docked = m_last_dock.is_docked;
         }
 
@@ -198,9 +207,11 @@ void Create3CoverageNode::execute(const std::shared_ptr<GoalHandleCoverage> goal
         }
 
         if (!m_dock_msgs_received) {
+            loop_rate.sleep();
             continue;
         }
 
+        // Run the state machine!
         output = state_machine->execute(data);
         if (m_last_behavior != output.current_behavior) {
             auto feedback = std::make_shared<CoverageAction::Feedback>();
