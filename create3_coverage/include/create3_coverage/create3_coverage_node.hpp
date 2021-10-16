@@ -78,6 +78,9 @@ private:
 
     int32_t m_last_behavior;
 
+    double m_rate_hz;
+    int m_opcodes_buffer_ms;
+
     std::atomic<bool> m_is_running;
     std::mutex m_mutex;
 
@@ -87,6 +90,7 @@ private:
     KidnapMsg m_last_kidnap;
     OdometryMsg m_last_odom;
     std::vector<OpCodeMsg> m_last_opcodes;
+    rclcpp::Time m_last_opcodes_cleared_time;
 
     rclcpp_action::Server<CoverageAction>::SharedPtr m_coverage_action_server;
 
