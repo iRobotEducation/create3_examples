@@ -84,7 +84,7 @@ Create3CoverageNode::Create3CoverageNode()
         std::bind(&Create3CoverageNode::kidnap_callback, this, _1));
 
     m_rate_hz = this->declare_parameter<double>("rate_hz", 30);
-    m_opcodes_buffer_ms = this->declare_parameter<int>("opcodes_buffer_ms", 2000);
+    m_opcodes_buffer_ms = this->declare_parameter<int>("opcodes_buffer_ms", 200);
 
     m_dock_msgs_received = false;
     m_is_running = false;
