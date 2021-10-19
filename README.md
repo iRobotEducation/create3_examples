@@ -16,7 +16,7 @@ Then, you are ready to clone and build this repository.
 ```sh
 mkdir -p create3_examples_ws/src
 cd create3_examples_ws/src
-git clone https://github.com/iRobotEducation/irobot_create_msgs.git
+git clone https://github.com/iRobotEducation/create3_examples.git
 cd ..
 colcon build
 source install/local_setup.sh
