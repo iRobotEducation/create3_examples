@@ -6,7 +6,7 @@
   <description>C++ action server exposing a non-systematic coverage behavior</description>
   <maintainer email="asoragna@irobot.com">Alberto Soragna</maintainer>
   <maintainer email="jkearns@irobot.com">Justin Kearns</maintainer>
-  <license>TODO: License declaration</license>
+  <license>BSD</license>
   <author email="asoragna@irobot.com">Alberto Soragna</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>

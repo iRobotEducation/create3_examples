@@ -6,7 +6,7 @@
   <description>Package containing action, message and service definitions used by the iRobot Create3 examples</description>
   <maintainer email="asoragna@irobot.com">Alberto Soragna</maintainer>
   <maintainer email="jkearns@irobot.com">Justin Kearns</maintainer>
-  <license>Apache-2.0</license>
+  <license>BSD</license>
 
   <author email="asoragna@irobot.com">Alberto Soragna</author>
   <author email="jkearns@irobot.com">Justin Kearns</author>
