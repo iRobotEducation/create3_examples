@@ -1,8 +1,8 @@
-# Create3 Examples Python
+# iRobot® Create® 3 Examples Python
 
-This package contains Python script that demonstrate how to interact with the Create3 robot.
+This package contains Python script that demonstrate how to interact with the Create® 3 robot.
 
-## Create3 dance
+## iRobot® Create® 3 Dance
 
 This executable will show how to drive the robot around while changing its LED colors.
 Use it to create patterns and follow the tempo of your favourite songs!

@@ -16,7 +16,7 @@ setup(
     zip_safe=True,
     maintainer='jkearns',
     maintainer_email='jkearns@irobot.com',
-    description='Example ROS 2 python code to use Create3',
+    description='Example ROS 2 Python code to use iRobot® Create® 3',
     license='BSD-3',
     tests_require=['pytest'],
     entry_points={

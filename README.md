@@ -1,6 +1,6 @@
 # create3_examples
 
-Example nodes to drive the iRobot Create3 robot.
+Example nodes to drive the iRobot® Create® 3 Educational Robot.
 
 ### Dependencies
 
@@ -10,8 +10,8 @@ Example nodes to drive the iRobot Create3 robot.
 
 ### Build instructions
 
-Source your ROS 2 workspaces with all the required dependencies.
-Then you are ready to clone and build this repository.
+First, source your ROS 2 workspaces with all the required dependencies.
+Then, you are ready to clone and build this repository.
 
 ```sh
 mkdir -p create3_examples_ws/src

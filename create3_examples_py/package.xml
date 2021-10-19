@@ -3,7 +3,7 @@
 <package format="3">
   <name>create3_examples_py</name>
   <version>0.0.1</version>
-  <description>Python examples for interacting with the Create3 robot</description>
+  <description>Python examples for interacting with the iRobot(R) Create(R) 3 Educational Robot</description>
   <maintainer email="jkearns@irobot.com">jkearns</maintainer>
   <license>BSD</license>
   <author email="jkearns@irobot.com">Justin Kearns</author>
