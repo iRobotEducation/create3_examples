@@ -32,7 +32,8 @@ State DockBehavior::execute(const Data & data)
         auto goal_msg = DockAction::Goal();
 
         auto send_goal_options = rclcpp_action::Client<DockAction>::SendGoalOptions();
-        send_goal_options.goal_response_callback = [this](const GoalHandleDock::SharedPtr & goal_handle){
+        send_goal_options.goal_response_callback = [this](std::shared_future<GoalHandleDock::SharedPtr> future){
+            auto goal_handle = future.get();
             m_dock_goal_handle_ready = true;
             m_dock_goal_handle = goal_handle;
         };

@@ -32,7 +32,8 @@ State UndockBehavior::execute(const Data & data)
         auto goal_msg = UndockAction::Goal();
 
         auto send_goal_options = rclcpp_action::Client<UndockAction>::SendGoalOptions();
-        send_goal_options.goal_response_callback = [this](const GoalHandleUndock::SharedPtr & goal_handle){
+        send_goal_options.goal_response_callback = [this](std::shared_future<GoalHandleUndock::SharedPtr> future){
+            auto goal_handle = future.get();
             m_undock_goal_handle_ready = true;
             m_undock_goal_handle = goal_handle;
         };
