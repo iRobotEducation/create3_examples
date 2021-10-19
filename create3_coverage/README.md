@@ -1,8 +1,8 @@
-# Create3 Coverage
+# iRobot® Create® 3 Coverage
 
-This example creates a ROS 2 action server that allows to run a simple, non-systematic, coverage algorithm on your Create3.
+This example creates a ROS 2 action server that runs a simple non-systematic coverage algorithm on your Create® 3.
 
-The main purpose is to show how to command your robot and how to react to its hazard information.
+The purpose of this example is to show how to command your robot and react to its hazard information.
 
 ### How to use
 
