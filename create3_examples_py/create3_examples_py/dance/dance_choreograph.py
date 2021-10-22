@@ -5,6 +5,11 @@ import math
 import rclpy
 from rclpy.node import Node
 
+from rcl_interfaces.msg import Parameter
+from rcl_interfaces.msg import ParameterType
+from rcl_interfaces.msg import ParameterValue
+from rcl_interfaces.srv import SetParameters
+
 from geometry_msgs.msg import Twist
 from irobot_create_msgs.msg import LedColor
 from irobot_create_msgs.msg import LightringLeds
@@ -108,16 +113,40 @@ class DanceCommandPublisher(Node):
         self.last_lightring = LightringLeds()
         self.last_lightring.override_system = False
         self.ready = False
+        self.wait_on_params = False
         self.last_wait_subscriber_printout = None
+        self.finished = False
+        self.params_cli = self.create_client(SetParameters, '/motion_control/set_parameters')
+        while not self.params_cli.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('service not available, waiting again...')
 
     def timer_callback(self):
+        if self.finished:
+            return
         current_time = self.get_clock().now()
-        # Set lights >= until populated in sim
+        # Wait for subscribers and parameter set before starting dance
         if not self.ready:
-            if self.vel_publisher.get_subscription_count() > 0 and self.lights_publisher.get_subscription_count() >= 0:
-                self.get_logger().info('Subscribers connected, start dance at time %f' % (current_time.nanoseconds / float(1e9)))
+            # Check if waiting on parameter set to return
+            if self.wait_on_params:
+                if self.params_future.done():
+                    try:
+                        response = self.params_future.result()
+                        self.get_logger().info('Set Params Service response %r' % (response,))
+                    except Exception as e:
+                        self.get_logger().info('Set Params Service call failed %r' % (e,))
+                else:
+                    self.get_logger().info('Wait on future')
+                    return
+                # Finished trying to set parameters, start dance sequence
                 self.ready = True
+                self.get_logger().info('Finished params set, start dance at time %f' % (current_time.nanoseconds / float(1e9)))
                 self.dance_choreographer.start_dance(current_time)
+            # Check is subscribers are ready
+            elif self.vel_publisher.get_subscription_count() > 0 and self.lights_publisher.get_subscription_count() > 0:
+                self.get_logger().info('Subscribers connected, send safety_override param at time %f' % (current_time.nanoseconds / float(1e9)))
+                self.send_params_request()
+                self.wait_on_params = True
+                return
             elif not self.last_wait_subscriber_printout or ((current_time - self.last_wait_subscriber_printout).nanoseconds / float(1e9)) > 5.0:
                 # Only print once every 5 seconds
                 self.last_wait_subscriber_printout = current_time
@@ -125,6 +154,7 @@ class DanceCommandPublisher(Node):
                 return
             else:
                 return
+        # get actions from dance_choreographer given time
         next_actions = self.dance_choreographer.get_next_actions(current_time)
         twist = self.last_twist
         lightring = self.last_lightring
@@ -149,8 +179,16 @@ class DanceCommandPublisher(Node):
                 lightring = LightringLeds()
                 lightring.override_system = False
                 self.last_lightring = lightring
+                self.finished = True
                 self.get_logger().info('Time %f Finished Dance Sequence' % (current_time.nanoseconds / float(1e9)))
 
         lightring.header.stamp = current_time.to_msg()
         self.vel_publisher.publish(twist)
         self.lights_publisher.publish(lightring)
+
+    # Set safety_override to backup_only so robot can backup during dance sequence
+    def send_params_request(self):
+        safety_override = ParameterValue(type=ParameterType.PARAMETER_STRING, string_value="backup_only")
+        req = SetParameters.Request()
+        req.parameters = [Parameter(name='safety_override', value=safety_override)]
+        self.params_future = self.params_cli.call_async(req)
