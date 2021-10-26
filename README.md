@@ -4,7 +4,7 @@ Example nodes to drive the iRobot® Create® 3 Educational Robot.
 
 ### Dependencies
 
- - ROS 2
+ - ROS 2 Galactic
  - [irobot_create_msgs](https://github.com/iRobotEducation/irobot_create_msgs)
 
 
@@ -21,3 +21,7 @@ cd ..
 colcon build
 source install/local_setup.sh
 ```
+
+### Run the examples
+
+Refer to the individual examples README.md for instructions on how to run them.

@@ -90,6 +90,11 @@ Create3CoverageNode::handle_goal(
     (void)uuid;
     (void)goal;
 
+    if (!this->ready_to_start()) {
+        RCLCPP_WARN(this->get_logger(), "Rejecting goal request: robot nodes have not been discovered yet");
+        return rclcpp_action::GoalResponse::REJECT;
+    }
+
     bool is_kidnapped = false;
     {
         std::lock_guard<std::mutex> guard(m_mutex);
@@ -195,11 +200,6 @@ void Create3CoverageNode::execute(const std::shared_ptr<GoalHandleCoverage> goal
             return;
         }
 
-        if (!m_dock_msgs_received) {
-            loop_rate.sleep();
-            continue;
-        }
-
         // Run the state machine!
         output = state_machine->execute(data);
         if (m_last_behavior != output.current_behavior) {
@@ -276,6 +276,45 @@ bool Create3CoverageNode::reflexes_setup()
     }
 
     return robot_has_reflexes;
+}
+
+bool Create3CoverageNode::ready_to_start()
+{
+
+    if (m_dock_subscription->get_publisher_count() == 0 ||
+        m_hazards_subscription->get_publisher_count() == 0 ||
+        m_ir_opcode_subscription->get_publisher_count() == 0 ||
+        m_odom_subscription->get_publisher_count() == 0 ||
+        m_kidnap_subscription->get_publisher_count() == 0)
+    {
+        RCLCPP_WARN(this->get_logger(), "Some subscriptions haven't discovered their publishers yet");
+        return false;
+    }
+
+    if (m_cmd_vel_publisher->get_subscription_count() == 0) {
+        RCLCPP_WARN(this->get_logger(), "Some publishers haven't discovered their subscriptions yet");
+        return false;
+    }
+
+    if (!m_reflexes_param_client->service_is_ready()) {
+        RCLCPP_WARN(this->get_logger(), "Some parameters servers are not ready yet");
+        return false;
+    }
+
+    if (!m_dock_action_client->action_server_is_ready() ||
+        !m_undock_action_client->action_server_is_ready())
+    {
+        RCLCPP_WARN(this->get_logger(), "Some actions servers are not ready yet");
+        return false;
+    }
+
+    // We must know if the robot is docked or not before starting the behavior
+    if (!m_dock_msgs_received) {
+        RCLCPP_WARN(this->get_logger(), "Didn't receive a dock message yet");
+        return false;
+    }
+
+    return true;
 }
 
 void Create3CoverageNode::dock_callback(DockMsg::ConstSharedPtr msg)
