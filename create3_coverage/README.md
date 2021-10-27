@@ -23,9 +23,7 @@ ros2 action send_goal /coverage create3_examples_msgs/action/Coverage "{explore_
 
 ### Robot initial configuration
 
-Either place your robot on its dock or far from it (note: the behavior may fail or make the robot run over the dock if you start very close to it).
-
-Do not place the robot in contact with obstacles or onto a cliff.
-
-This example will check if the robot has some reflexes enabled.
-If they are not enabled, it will use simple backup maneuvers to move away from hazards.
+**NOTES:**
+ - Do not start the behavior with the robot undocked, but very close to the dock. The behavior may fail or it may cause the robot to run over its dock.
+ It's safe to start with the robot still docked.
+ - Do not start the behavior with the robot in contact with obstacles or cliffs.
