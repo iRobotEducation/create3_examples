@@ -67,16 +67,25 @@ def main(args=None):
         (22.0, dc.Move(0.15, 70)),
         (22.5, dc.FinishedDance())
         ]
-    dance_choreographer = dc.DanceChoreographer(DANCE_SEQUENCE)
-    dance_publisher = dc.DanceCommandPublisher(dance_choreographer)
 
-    rclpy.spin(dance_publisher)
-
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    dance_publisher.destroy_node()
-    rclpy.shutdown()
+    dance_publisher = None
+    try: 
+        dance_choreographer = dc.DanceChoreographer(DANCE_SEQUENCE)
+        dance_publisher = dc.DanceCommandPublisher(dance_choreographer)
+        rclpy.spin(dance_publisher)
+    except dc.FinishedDance:
+        print('Finished Dance')
+    except KeyboardInterrupt:
+        print('Caught keyboard interrupt')
+    except BaseException:
+        print('Exception in dance:', file=sys.stderr)
+    finally:
+        # Destroy the node explicitly
+        # (optional - otherwise it will be done automatically
+        # when the garbage collector destroys the node object)
+        if dance_publisher:
+            dance_publisher.destroy_node()
+        rclpy.shutdown()
 
 
 if __name__ == '__main__':
