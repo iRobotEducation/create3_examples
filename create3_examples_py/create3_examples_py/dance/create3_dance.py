@@ -1,6 +1,7 @@
 # Copyright 2021 iRobot Corporation. All Rights Reserved.
 
 import rclpy
+import sys
 from create3_examples_py.dance import dance_choreograph as dc
 
 def main(args=None):
