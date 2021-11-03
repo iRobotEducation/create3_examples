@@ -52,7 +52,7 @@ class Lights():
         """
         self.led_colors = led_colors
 
-class FinishedDance():
+class FinishedDance(Exception):
     """ Class to tell the robot dance sequence has finished"""
     pass
 
@@ -181,6 +181,7 @@ class DanceCommandPublisher(Node):
                 self.last_lightring = lightring
                 self.finished = True
                 self.get_logger().info('Time %f Finished Dance Sequence' % (current_time.nanoseconds / float(1e9)))
+                raise FinishedDance
 
         lightring.header.stamp = current_time.to_msg()
         self.vel_publisher.publish(twist)

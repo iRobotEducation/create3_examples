@@ -42,6 +42,8 @@ private:
 
     bool reflexes_setup();
 
+    bool ready_to_start();
+
     rclcpp_action::GoalResponse
     handle_goal(
         const rclcpp_action::GoalUUID& uuid,
