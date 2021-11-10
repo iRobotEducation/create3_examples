@@ -83,8 +83,8 @@ void CoverageStateMachine::select_next_behavior(const Behavior::Data& data)
 
     // Check if it's time to wrap up the behavior
     bool explore_duration_elapsed = m_clock->now() - m_start_time >= m_goal.explore_duration;
-    bool max_duration_elapsed = m_clock->now() - m_start_time >= m_goal.max_duration;
-    if (max_duration_elapsed) {
+    bool max_runtime_elapsed = m_clock->now() - m_start_time >= m_goal.max_runtime;
+    if (max_runtime_elapsed) {
         m_coverage_output.state = State::SUCCESS;
         return;
     }
