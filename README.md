@@ -18,6 +18,7 @@ mkdir -p create3_examples_ws/src
 cd create3_examples_ws/src
 git clone https://github.com/iRobotEducation/create3_examples.git
 cd ..
+rosdep install --from-path src --ignore-src -yi
 colcon build
 source install/local_setup.sh
 ```
