@@ -27,3 +27,11 @@ ros2 action send_goal /coverage create3_examples_msgs/action/Coverage "{explore_
  - Do not start the behavior with the robot undocked, but very close to the dock. The behavior may fail or it may cause the robot to run over its dock.
  It's safe to start with the robot still docked.
  - Do not start the behavior with the robot in contact with obstacles or cliffs.
+
+
+### Troubleshooting
+
+##### `Waiting for an action server to become available...`
+
+If users notice that they are unable to communicate with the coverage action server when using Fast-DDS RMW, this is due to the following bug https://github.com/ros2/rmw_fastrtps/issues/563.
+A simple fix consists in updating the `rwm_fastrtps_cpp` library to a version >= 5.0.1

@@ -4,7 +4,7 @@ Example nodes to drive the iRobot® Create® 3 Educational Robot.
 
 ### Dependencies
 
- - ROS 2 Galactic
+ - [ROS 2 Galactic](https://docs.ros.org/en/galactic/Installation.html)
  - [irobot_create_msgs](https://github.com/iRobotEducation/irobot_create_msgs)
 
 
