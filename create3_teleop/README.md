@@ -1,4 +1,4 @@
-# Create3 Teleopearation
+# Create3 Teleoperation
 
 This package contains scripts and instructions for teleoperating the the Create® 3 robot using keyboard or joystick.
 
