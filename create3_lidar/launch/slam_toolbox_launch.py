@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Copyright 2022 iRobot Corporation. All Rights Reserved.
 
 from launch import LaunchContext
 from launch import LaunchDescription
