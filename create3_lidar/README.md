@@ -24,14 +24,14 @@ This example sets up LIDAR SLAM with a Create® 3 robot and Slamtec RPLIDAR spin
 
 1. Affix an SBC to your robot.
    In this example, we use a Raspberry Pi® 4, but other devices should work.
-   STLs are available to mount a Raspberry Pi® to the Create® 3.
+   STLs are available to mount a Raspberry Pi® to the Create® 3 robot.
    The Raspberry Pi® can be attached to the mounting plate using qty. 4 of M2.5 x 6 self-tapping screws.
    The mounting plate can be attached to the Create® 3 cargo bay with M3 x 10 self-tapping screws.
 
 1. Connect the LIDAR to the SBC with a USB Micro B to USB A cable.
    Thread the cable through the passthrough in the top of the robot.
 
-1. Connect the SBC to the Create® 3 with a USB-C® to USB-C® cable.
+1. Connect the SBC to the Create® 3 adapter board with a USB-C® to USB-C® cable.
 
 ### SBC Setup
 
