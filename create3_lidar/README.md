@@ -37,7 +37,7 @@ This example sets up LIDAR SLAM with a Create® 3 robot and Slamtec RPLIDAR spin
 
 ### SBC Setup
 
-On the SBC, build this and source the setup shell scripts.
+On the SBC, clone and build this, and source the setup shell scripts.
 
 Start the sensors launch script, which includes the LIDAR driver and transform from the laser scan to the robot:
 
@@ -64,6 +64,8 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 
 ### Computer Setup
+
+On your computer, clone and build this, and source the setup shell scripts.
 
 ![Image of rviz with custom configuration](https://iroboteducation.github.io/create3_docs/examples/data/create3_lidar_rviz.png)
 
