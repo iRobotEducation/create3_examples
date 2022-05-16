@@ -16,6 +16,8 @@ This example sets up LIDAR SLAM with a Create® 3 robot and Slamtec RPLIDAR spin
 
 ### Hardware Setup
 
+![Image of Create 3 showing setup and placement of sensors](https://iroboteducation.github.io/create3_docs/examples/data/create3_lidar_top.jpg)
+
 1. Affix a LIDAR to your robot.
    STLs are available to mount an RPLidar A1M8 as well as its USB adapter.
    The LIDAR can be attached to the mounting plate using qty. 4 of M2.5 x 8 screws.
@@ -49,6 +51,12 @@ In a separate terminal run slam toolbox:
 ros2 launch create3_lidar slam_toolbox_launch.py
 ```
 
+There may be some warnings and errors on startup, but the following message will be printed once everything is ready:
+
+```bash
+[async_slam_toolbox_node-1] Registering sensor: [Custom Described Lidar]
+```
+
 In a third terminal, drive the robot around:
 
 ```bash
@@ -57,14 +65,21 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard
 
 ### Computer Setup
 
-On your computer, start rviz2.
-(TODO: more to come here)
+![Image of rviz with custom configuration](https://iroboteducation.github.io/create3_docs/examples/data/create3_lidar_rviz.png)
+
+On your computer, start rviz2. If you run it from a cloned version of this repository, you will find an rviz configuration installed.
+
+```bash
+rviz2
+```
 
 ## Tips and Tricks
 
-Limit rotation speed for best results.
+* Limit rotation speed for best results.
 
 ### Troubleshooting
+
+* Ensure the robot, SBC, and computer are all on the same network, using the same middleware.
 
 [^1]: Raspberry Pi® is a trademark of Raspberry Pi Trading.
 [^2]: USB-C® is a trademark of USB Implementers Forum.
