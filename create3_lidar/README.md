@@ -86,6 +86,7 @@ This file will configure rviz2 to subscribe to the laser, the occupancy map, and
 ### Troubleshooting
 
 * Ensure the robot, SBC, and computer are all on the same network, using the same middleware.
+* If using CycloneDDS, and you are using multiple network interfaces on either the SBC or the computer, be sure to set up your [XML profile(s)](https://iroboteducation.github.io/create3_docs/setup/xml-config/) properly.
 
 [^1]: Raspberry Pi® is a trademark of Raspberry Pi Trading.
 [^2]: USB-C® is a trademark of USB Implementers Forum.
