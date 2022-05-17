@@ -17,7 +17,9 @@ This example sets up LIDAR SLAM with a Create® 3 robot and Slamtec RPLIDAR spin
 ### Hardware Setup
 
 The files in this example assume the RPLIDAR is mounted 12 mm behind the center of rotation on the top of the Create 3 robot, in the arrangement shown below.
-The SLAM solver relies on a proper tf tree; if you wish to mount the sensor in another location, you will need to modify the parameters in the static transform publisher launched from `launch/sensors_launch.py`.
+The SLAM solver relies on a proper `tf` tree; if you wish to mount the sensor in another location, you will need to modify the parameters in the static transform publisher launched from `launch/sensors_launch.py`.
+
+Note that all STLS of brackets referenced in this example are found in our [create3_docs](https://github.com/iRobotEducation/create3_docs/tree/main/docs/hw/data/brackets) repository.
 
 ![Image of Create 3 showing setup and placement of sensors](https://iroboteducation.github.io/create3_docs/examples/data/create3_lidar_top.jpg)
 
