@@ -1,0 +1,12 @@
+rplidar_node:
+  ros__parameters:
+    angle_compensate: true
+    channel_type: serial
+    flip_x_axis: false
+    frame_id: laser_frame
+    inverted: false
+    scan_mode: ''
+    serial_baudrate: 115200
+    serial_port: /dev/ttyUSB0
+    topic_name: scan
+    use_sim_time: false
