@@ -34,3 +34,7 @@ source ~/create3_examples_ws/install/local_setup.sh
 ### Run the examples
 
 Refer to the individual examples README.md for instructions on how to run them.
+
+### Potential pitfalls
+
+If you are unable to automatically install dependencies with rosdep (perhaps due to [this issue](https://github.com/ros-infrastructure/rosdep/issues/733)), please do be sure to manually install the dependencies for your particular example of interest, contained in its package.xml file.
