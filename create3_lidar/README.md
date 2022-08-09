@@ -29,7 +29,7 @@ Note that all STLs of brackets referenced in this example are found in our [crea
    The USB adapter can be attached to its mounting plate by heat staking (we used a soldering iron with an old tip in a well-ventilated space).
    Both mounting plates can be attached to the Create® 3 faceplate with M3 x 10 self-tapping screws.
 
-1. Affix an SBC to your robot.
+1. Affix a single board computer (abbreviated as SBC for this guide) to your robot.
    In this example, we use a Raspberry Pi® 4, but other devices should work.
    STLs are available to mount a Raspberry Pi® to the Create® 3 robot.
    The Raspberry Pi® can be attached to the mounting plate using qty. 4 of M2.5 x 6 self-tapping screws.
