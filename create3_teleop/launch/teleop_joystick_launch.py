@@ -71,6 +71,7 @@ def generate_launch_description():
                                          choices=['ps3-ble', 'xbox', 'ps3', 'ps3-holonomic', 'atk3', 'xd3']))
     ld_args.append(DeclareLaunchArgument('joy_dev',
                                          default_value='/dev/input/js0'))
+    # Launch argument to set enable button
     ld_args.append(DeclareLaunchArgument('joy_enable',
                                          default_value='no-enable',
                                          choices=['no-enable', 'enable']))
