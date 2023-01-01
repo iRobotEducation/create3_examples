@@ -4,7 +4,7 @@
 
 #include "create3_coverage/behaviors/behavior.hpp"
 #include "create3_examples_msgs/action/coverage.hpp"
-#include "irobot_create_msgs/action/dock_servo.hpp"
+#include "irobot_create_msgs/action/dock.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 
 namespace create3_coverage {
@@ -12,7 +12,7 @@ namespace create3_coverage {
 class DockBehavior : public Behavior
 {
 public:
-    using DockAction = irobot_create_msgs::action::DockServo;
+    using DockAction = irobot_create_msgs::action::Dock;
     using GoalHandleDock = rclcpp_action::ClientGoalHandle<DockAction>;
 
     DockBehavior(

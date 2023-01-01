@@ -9,9 +9,9 @@
 #include "create3_coverage/behaviors/behavior.hpp"
 #include "create3_examples_msgs/action/coverage.hpp"
 #include "geometry_msgs/msg/twist.hpp"
-#include "irobot_create_msgs/action/dock_servo.hpp"
+#include "irobot_create_msgs/action/dock.hpp"
 #include "irobot_create_msgs/action/undock.hpp"
-#include "irobot_create_msgs/msg/dock.hpp"
+#include "irobot_create_msgs/msg/dock_status.hpp"
 #include "irobot_create_msgs/msg/hazard_detection_vector.hpp"
 #include "irobot_create_msgs/msg/ir_opcode.hpp"
 #include "irobot_create_msgs/msg/kidnap_status.hpp"
@@ -31,9 +31,9 @@ private:
     using CoverageAction = create3_examples_msgs::action::Coverage;
     using GoalHandleCoverage = rclcpp_action::ServerGoalHandle<CoverageAction>;
 
-    using DockAction = irobot_create_msgs::action::DockServo;
+    using DockAction = irobot_create_msgs::action::Dock;
     using UndockAction = irobot_create_msgs::action::Undock;
-    using DockMsg = irobot_create_msgs::msg::Dock;
+    using DockMsg = irobot_create_msgs::msg::DockStatus;
     using HazardMsg = irobot_create_msgs::msg::HazardDetectionVector;
     using KidnapMsg = irobot_create_msgs::msg::KidnapStatus;
     using OdometryMsg = nav_msgs::msg::Odometry;

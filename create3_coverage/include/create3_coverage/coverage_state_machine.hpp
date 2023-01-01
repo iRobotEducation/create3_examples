@@ -11,7 +11,7 @@
 #include "create3_coverage/state.hpp"
 #include "create3_examples_msgs/action/coverage.hpp"
 #include "geometry_msgs/msg/twist.hpp"
-#include "irobot_create_msgs/action/dock_servo.hpp"
+#include "irobot_create_msgs/action/dock.hpp"
 #include "irobot_create_msgs/action/undock.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
@@ -21,7 +21,7 @@ namespace create3_coverage {
 class CoverageStateMachine
 {
 public:
-    using DockAction = irobot_create_msgs::action::DockServo;
+    using DockAction = irobot_create_msgs::action::Dock;
     using UndockAction = irobot_create_msgs::action::Undock;
     using TwistMsg = geometry_msgs::msg::Twist;
 
