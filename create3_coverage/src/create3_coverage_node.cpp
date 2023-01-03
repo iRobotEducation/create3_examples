@@ -48,7 +48,7 @@ Create3CoverageNode::Create3CoverageNode()
         rmw_qos_profile_parameters);
 
     m_dock_subscription = this->create_subscription<DockMsg>(
-        "dock",
+        "dock_status",
         rclcpp::SensorDataQoS(),
         std::bind(&Create3CoverageNode::dock_callback, this, _1));
 
