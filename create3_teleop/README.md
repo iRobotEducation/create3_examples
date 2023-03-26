@@ -17,10 +17,10 @@ ros2 launch create3_teleop teleop_joystick_launch.py
 This will default to an xbox 360 controller, but can be easily overriden using the `joy_config` launchfile argument for any of the supported platforms. As of time of writing, these are:
 - Logitech Attack3 (`atk3`)
 - Logitech Extreme 3D Pro (`xd3`)
-- PS3 (`ps3` or `ps3-holonomic`)
+- PS3 (`ps3`, `ps3-ble` or `ps3-holonomic`)
 - Xbox 360 (`xbox`)
 
-Example for a PS3 controller:
+Example for a PS3 controller connected via usb:
 
 ```sh
 ros2 launch create3_teleop teleop_joystick_launch.py joy_config:=ps3
@@ -30,4 +30,10 @@ Also, it's possible to select the specific device to use with the `joy_dev` argu
 
 ```sh
 ros2 launch create3_teleop teleop_joystick_launch.py joy_dev:=/dev/input/js1
+```
+
+Lastly, the enable button feature has been disabled on all joysticks by default. However, it can be re-enabled via the `joy_enable` launchfile argument:
+
+```sh
+ros2 launch create3_teleop teleop_joystick_launch.py joy_enable:='enable'
 ```
