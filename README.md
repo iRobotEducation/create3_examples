@@ -16,7 +16,7 @@ You should only have to do this once per install.
 ```sh
 mkdir -p create3_examples_ws/src
 cd create3_examples_ws/src
-git clone https://github.com/iRobotEducation/create3_examples.git
+git clone https://github.com/iRobotEducation/create3_examples.git --branch humble
 cd ..
 rosdep install --from-path src --ignore-src -yi
 colcon build
