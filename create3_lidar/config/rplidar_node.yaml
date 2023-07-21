@@ -1,4 +1,5 @@
-rplidar_node:
+# rplidar_node
+/**:
   ros__parameters:
     angle_compensate: true
     channel_type: serial
@@ -10,3 +11,7 @@ rplidar_node:
     serial_port: /dev/ttyUSB0
     topic_name: scan
     use_sim_time: false
+    
+    # True turns off lidar motor when scan topic is not subscribed to. 
+    # False runs lidar motor constantly. 
+    auto_standby: true
