@@ -9,8 +9,11 @@ from ament_index_python.packages import get_package_share_directory
 
 
 def generate_launch_description():
+    # Evaluate at launch the value of the launch configuration 'namespace' 
     namespace = LaunchConfiguration('namespace')
 
+    # Declares an action to allow users to pass the robot namespace from the 
+    # CLI into the launch description as an argument.
     namespace_argument = DeclareLaunchArgument(
         'namespace', 
         default_value='',
