@@ -43,7 +43,7 @@ def generate_launch_description():
         executable='rplidar_composition',
         output='screen',
         parameters=[
-            get_package_share_directory("create3_lidar") + '/config/rplidar_node.yaml'
+            get_package_share_directory("create3_lidar_slam") + '/config/rplidar_node.yaml'
             ],
         namespace=namespace
     )

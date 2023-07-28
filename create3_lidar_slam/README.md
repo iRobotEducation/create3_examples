@@ -53,14 +53,14 @@ source ~/create3_examples_ws/install/local_setup.sh
 Run the sensors launch script, which includes the LIDAR driver and transform from the laser scan to the robot:
 
 ```bash
-ros2 launch create3_lidar sensors_launch.py
+ros2 launch create3_lidar_slam sensors_launch.py
 ```
 If your robot is using a namespace, you should add `namespace:='ROBOTNAMESPACE'` to the previous command, where `ROBOTNAMESPACE` is the namespace of your robot
 
 In a separate terminal run slam toolbox:
 
 ```bash
-ros2 launch create3_lidar slam_toolbox_launch.py
+ros2 launch create3_lidar_slam slam_toolbox_launch.py
 ```
 If your robot is using a namespace, you should add `namespace:='ROBOTNAMESPACE'` to the previous command, where `ROBOTNAMESPACE` is the namespace of your robot.
 
@@ -95,7 +95,7 @@ source ~/create3_examples_ws/install/local_setup.sh
 Run the rviz launch script, which launches rviz2 with the appropriate configuration:
 
 ```bash
-ros2 launch create3_lidar rviz_launch.py
+ros2 launch create3_lidar_slam rviz_launch.py
 ```
 If your robot is using a namespace, you should add `namespace:='ROBOTNAMESPACE'` to the previous command, where `ROBOTNAMESPACE` is the namespace of your robot.
 

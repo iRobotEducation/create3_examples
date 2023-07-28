@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>create3_lidar</name>
+  <name>create3_lidar_slam</name>
   <version>0.0.1</version>
   <description>Example for using an RPLIDAR A1 with a Create 3</description>
   <maintainer email="asoragna@irobot.com">Alberto Soragna</maintainer>

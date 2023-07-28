@@ -33,7 +33,7 @@ def generate_launch_description():
     # This node is responsible for configuring and running slam toolbox.  
     start_async_slam_toolbox_node = Node(
         parameters=[
-          get_package_share_directory("create3_lidar") + '/config/mapper_params_online_async.yaml',
+          get_package_share_directory("create3_lidar_slam") + '/config/mapper_params_online_async.yaml',
           {'use_sim_time': use_sim_time}
         ],
         package='slam_toolbox',
