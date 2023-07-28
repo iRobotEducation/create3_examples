@@ -50,18 +50,19 @@ Source the setup shell scripts in **EVERY** terminal you open:
 source ~/create3_examples_ws/install/local_setup.sh 
 ```
 
-Run the sensors launch script, which includes the LIDAR driver and transform from the laser scan to the robot. Replace `ROBOTNAMESPACE` with the namespace of your robot. If you are not using a namespace, you may delete `namespace:='ROBOTNAMESPACE'` from the command:
+Run the sensors launch script, which includes the LIDAR driver and transform from the laser scan to the robot:
 
 ```bash
-ros2 launch create3_lidar sensors_launch.py namespace:='ROBOTNAMESPACE'
+ros2 launch create3_lidar sensors_launch.py
 ```
+If your robot is using a namespace, you should add `namespace:='ROBOTNAMESPACE'` to the previous command, where `ROBOTNAMESPACE` is the namespace of your robot
 
-
-In a separate terminal run slam toolbox. Replace `ROBOTNAMESPACE` with the namespace of your robot. If you are not using a namespace, you may delete `namespace:='ROBOTNAMESPACE'` from the command:
+In a separate terminal run slam toolbox:
 
 ```bash
-ros2 launch create3_lidar slam_toolbox_launch.py namespace:='ROBOTNAMESPACE'
+ros2 launch create3_lidar slam_toolbox_launch.py
 ```
+If your robot is using a namespace, you should add `namespace:='ROBOTNAMESPACE'` to the previous command, where `ROBOTNAMESPACE` is the namespace of your robot.
 
 There may be some warnings and errors on startup, but the following message will be printed once everything is ready:
 
@@ -69,11 +70,12 @@ There may be some warnings and errors on startup, but the following message will
 [async_slam_toolbox_node-1] Registering sensor: [Custom Described Lidar]
 ```
 
-In a third terminal, drive the robot around. Replace `ROBOTNAMESPACE` with the namespace of your robot. If you are not using a namespace, you may delete `--ros-args -r __ns:=/ROBOTNAMESPACE` from the command:
+In a third terminal, drive the robot around:
 
 ```bash
-ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r __ns:=/ROBOTNAMESPACE
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
+If your robot is using a namespace, you should add `--ros-args -r __ns:=/ROBOTNAMESPACE` to the previous command, where `ROBOTNAMESPACE` is the namespace of your robot.
 
 ### Computer Setup
 On your computer, install rviz2.
@@ -90,11 +92,13 @@ source ~/create3_examples_ws/install/local_setup.sh
 ```
 
 
-Run the sensors launch script, which includes the LIDAR driver and transform from the laser scan to the robot. Replace `ROBOTNAMESPACE` with the namespace of your robot. If you are not using a namespace, you may delete `namespace:='ROBOTNAMESPACE'` from the command:
+Run the rviz launch script, which launches rviz2 with the appropriate configuration:
 
 ```bash
-ros2 launch create3_lidar rviz_launch.py namespace:='ROBOTNAMESPACE'
+ros2 launch create3_lidar rviz_launch.py
 ```
+If your robot is using a namespace, you should add `namespace:='ROBOTNAMESPACE'` to the previous command, where `ROBOTNAMESPACE` is the namespace of your robot.
+
 The rviz2 configuration this command imports will configure rviz2 to subscribe to the laser, the occupancy map, and display the `base_footprint` tf frame that the laser is building off of from the map frame.
 
 ![Image of rviz with custom configuration](https://iroboteducation.github.io/create3_docs/examples/data/create3_lidar_rviz.png)
