@@ -42,19 +42,27 @@ Note that all STLs of brackets referenced in this example are found in our [crea
 
 ### SBC Setup
 
-On the SBC, clone and build this, and source the setup shell scripts.
+On the SBC, clone and build the [create3_examples repository](https://github.com/iRobotEducation/create3_examples). 
 
-Start the sensors launch script, which includes the LIDAR driver and transform from the laser scan to the robot:
+Source the setup shell scripts in **EVERY** terminal you open:
 
 ```bash
-ros2 launch create3_lidar sensors_launch.py
+source ~/create3_examples_ws/install/local_setup.sh 
 ```
+
+Run the sensors launch script, which includes the LIDAR driver and transform from the laser scan to the robot:
+
+```bash
+ros2 launch create3_lidar_slam sensors_launch.py
+```
+If your robot is using a namespace, you should add `namespace:='ROBOTNAMESPACE'` to the previous command, where `ROBOTNAMESPACE` is the namespace of your robot
 
 In a separate terminal run slam toolbox:
 
 ```bash
-ros2 launch create3_lidar slam_toolbox_launch.py
+ros2 launch create3_lidar_slam slam_toolbox_launch.py
 ```
+If your robot is using a namespace, you should add `namespace:='ROBOTNAMESPACE'` to the previous command, where `ROBOTNAMESPACE` is the namespace of your robot.
 
 There may be some warnings and errors on startup, but the following message will be printed once everything is ready:
 
@@ -67,31 +75,42 @@ In a third terminal, drive the robot around:
 ```bash
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
+If your robot is using a namespace, you should add `--ros-args -r __ns:=/ROBOTNAMESPACE` to the previous command, where `ROBOTNAMESPACE` is the namespace of your robot.
 
 ### Computer Setup
 
-On your computer, clone and build this, and source the setup shell scripts.
+Clone and build the [create3_examples repository](https://github.com/iRobotEducation/create3_examples). 
+Then source the setup shell scripts.
+
+```
+source ~/create3_examples_ws/install/local_setup.sh
+```
+
+
+Run the rviz launch script, which launches rviz2 with the appropriate configuration:
+
+```bash
+ros2 launch create3_lidar_slam rviz_launch.py
+```
+If your robot is using a namespace, you should add `namespace:='ROBOTNAMESPACE'` to the previous command, where `ROBOTNAMESPACE` is the namespace of your robot.
+
+The rviz2 configuration this command imports will configure rviz2 to subscribe to the laser, the occupancy map, and display the `base_footprint` tf frame that the laser is building off of from the map frame.
 
 ![Image of rviz with custom configuration](https://iroboteducation.github.io/create3_docs/examples/data/create3_lidar_rviz.png)
 
-On your computer, start rviz2.
 
-```bash
-rviz2
-```
 
-If this package is installed on your computer, you will find `create3_lidar.rviz` in `create3_examples_ws/install/share/create3_lidar/rviz`.
-Within rviz2, you can use the menu bar to select this file using `File` -> `Open Config`.
-This file will configure rviz2 to subscribe to the laser, the occupancy map, and display the `base_footprint` tf frame that the laser is building off of from the map frame.
 
 ## Tips and Tricks
 
 * Limit rotation speed for best results.
 
+
 ### Troubleshooting
 
 * Ensure the robot, SBC, and computer are all on the same network, using the same middleware.
 * If using CycloneDDS, and you are using multiple network interfaces on either the SBC or the computer, be sure to set up your [XML profile(s)](https://iroboteducation.github.io/create3_docs/setup/xml-config/) properly.
+* Check your tf tree and make sure it has all the same transforms as [this sample tree](TF_Tree.pdf).
 
 [^1]: Raspberry Pi® is a trademark of Raspberry Pi Trading.
 [^2]: USB-C® is a trademark of USB Implementers Forum.
