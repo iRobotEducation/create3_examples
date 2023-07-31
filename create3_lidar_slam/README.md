@@ -78,11 +78,6 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard
 If your robot is using a namespace, you should add `--ros-args -r __ns:=/ROBOTNAMESPACE` to the previous command, where `ROBOTNAMESPACE` is the namespace of your robot.
 
 ### Computer Setup
-On your computer, install rviz2.
-
-```
-sudo apt install ros-humble-rviz2
-```
 
 Clone and build the [create3_examples repository](https://github.com/iRobotEducation/create3_examples). 
 Then source the setup shell scripts.
