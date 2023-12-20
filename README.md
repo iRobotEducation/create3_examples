@@ -6,6 +6,15 @@ Example nodes to drive the iRobot® Create® 3 Educational Robot.
 
  - [ROS 2 Galactic](https://docs.ros.org/en/galactic/Installation.html)
 
+### Package Dependencies (ubuntu)
+
+The example code requires a number of packages including joystick and keyboard teleop, colcon and lidar packages:
+
+```bash 
+sudo apt install joystick ros-galactic-teleop-twist-joy ros-galactic-slam-toolbox \
+    ros-galactic-teleop-twist-keyboard ros-galactic-rplidar-ros \
+    ros-galactic-irobot-create-msgs python3-colcon-common-extensions
+```
 
 ### Build instructions
 
