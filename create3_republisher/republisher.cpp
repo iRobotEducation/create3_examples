@@ -66,9 +66,14 @@ private:
         if (robot_namespace.back() != '/') {
             robot_namespace += '/';
         }
+        std::string this_namespace = this->get_namespace();
+        if (this_namespace.back() != '/') {
+            this_namespace += '/';
+        }
+
         remapped_names_t remapped_names;
-        remapped_names.robot_entity = robot_namespace + relative_name;
-        remapped_names.this_entity = this->get_namespace() + remapped_names.robot_entity;
+        remapped_names.robot_entity = robot_namespace + relative_name;\
+        remapped_names.this_entity = this_namespace + relative_name;
         return remapped_names;
     }
 
@@ -241,18 +246,6 @@ private:
     template <typename ActionT>
     void make_action_pair(const std::string & client_name, const std::string & server_name)
     {
-        //auto cb_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false);
-        //auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-        //executor->add_callback_group(cb_group, this->get_node_base_interface());
-
-        // We should do some thread management here but it's not a big deal.
-        // The app will not shutdown nicely.
-        //auto executor_thread = std::thread([executor=executor](){
-        //    executor->spin();
-        //});
-        //executor_thread.detach();
-
-        // IMPORTANT: the client stays in the default callback group; the new one is only for the server
         auto client = rclcpp_action::create_client<ActionT>(this, client_name, nullptr);
         auto server = rclcpp_action::create_server<ActionT>(
             this, server_name,
@@ -324,7 +317,6 @@ private:
             rcl_action_server_get_default_options(),
             nullptr);
         
-        //m_callback_groups.push_back(cb_group);
         m_action_clients.push_back(client);
         m_action_servers.push_back(server);
     }
@@ -348,8 +340,7 @@ private:
             throw std::runtime_error("The 'robot_namespace' parameter must be a fully qualified name (start with '/')");
         }
         const std::string this_namespace = this->get_namespace();
-
-        if (robot_namespace == this_namespace) {
+        if (robot_namespace == this->get_namespace()) {
             throw std::runtime_error("The republisher node must have a different namespace from the robot!");
         }
 
