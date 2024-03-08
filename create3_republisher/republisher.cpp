@@ -97,8 +97,8 @@ private:
             setup_service_republisher(names.robot_entity, names.this_entity, type);
         }
         auto robot_actions = get_entity_pairs("robot_actions");
-        for (const auto & [service, type] : robot_actions) {
-            auto names = get_remapped_names(robot_namespace, service);
+        for (const auto & [action, type] : robot_actions) {
+            auto names = get_remapped_names(robot_namespace, action);
             setup_action_republisher(names.robot_entity, names.this_entity, type);
         }
         return true;
@@ -164,9 +164,9 @@ private:
             service_type.c_str());
 
         // Note: here we could match the service type, but that would prevent to have two services with same type but different name
-        if (entity_name_matches(client_topic, "e_stop")) {
+        if (entity_name_matches(client_topic, "/e_stop")) {
             make_service_pair<irobot_create_msgs::srv::EStop>(client_topic, server_topic);
-        } else if (entity_name_matches(client_topic, "robot_power")) {
+        } else if (entity_name_matches(client_topic, "/robot_power")) {
             make_service_pair<irobot_create_msgs::srv::RobotPower>(client_topic, server_topic);
         } else {
             throw std::runtime_error("Unrecognized service client " + client_topic);
@@ -184,23 +184,23 @@ private:
             service_type.c_str());
 
         // Note: here we could match the service type, but that would prevent to have two services with same type but different name
-        if (entity_name_matches(client_topic, "audio_note_sequence")) {
+        if (entity_name_matches(client_topic, "/audio_note_sequence")) {
             make_action_pair<irobot_create_msgs::action::AudioNoteSequence>(client_topic, server_topic);
-        } else if (entity_name_matches(client_topic, "dock")) {
+        } else if (entity_name_matches(client_topic, "/dock")) {
             make_action_pair<irobot_create_msgs::action::Dock>(client_topic, server_topic);
-        } else if (entity_name_matches(client_topic, "drive_arc")) {
+        } else if (entity_name_matches(client_topic, "/drive_arc")) {
             make_action_pair<irobot_create_msgs::action::DriveArc>(client_topic, server_topic);
-        } else if (entity_name_matches(client_topic, "drive_distance")) {
+        } else if (entity_name_matches(client_topic, "/drive_distance")) {
             make_action_pair<irobot_create_msgs::action::DriveDistance>(client_topic, server_topic);
-        } else if (entity_name_matches(client_topic, "led_animation")) {
+        } else if (entity_name_matches(client_topic, "/led_animation")) {
             make_action_pair<irobot_create_msgs::action::LedAnimation>(client_topic, server_topic);
-        } else if (entity_name_matches(client_topic, "navigate_to_position")) {
+        } else if (entity_name_matches(client_topic, "/navigate_to_position")) {
             make_action_pair<irobot_create_msgs::action::NavigateToPosition>(client_topic, server_topic);
-        } else if (entity_name_matches(client_topic, "rotate_angle")) {
+        } else if (entity_name_matches(client_topic, "/rotate_angle")) {
             make_action_pair<irobot_create_msgs::action::RotateAngle>(client_topic, server_topic);
-        } else if (entity_name_matches(client_topic, "undock")) {
+        } else if (entity_name_matches(client_topic, "/undock")) {
             make_action_pair<irobot_create_msgs::action::Undock>(client_topic, server_topic);
-        } else if (entity_name_matches(client_topic, "wall_follow")) {
+        } else if (entity_name_matches(client_topic, "/wall_follow")) {
             make_action_pair<irobot_create_msgs::action::WallFollow>(client_topic, server_topic);
         } else {
             throw std::runtime_error("Unrecognized action client " + client_topic);

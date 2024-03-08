@@ -16,6 +16,8 @@ ROS 2 middlewares have a tendency to discover all the ROS 2 entities in the netw
 This can cause performance issues due to excessive memory allocations, discovery traffic and double delivery of messages.
 This republisher can be used to get around this problem.
 
+For example, this occurs when having your Create 3 robot connected to a RaspberryPi (or other SBC), which runs applications made of a high number of ROS 2 entities or that deal with very big messages (e.g. the navigation stack, or rtabmap, etc).
+
 **IMPORTANT:** use this tool only if you experience problems in your setup.
 
 **NOTE:** Using this tool requires at least some understanding of how to configure ROS 2 application via DDS XML configuration files.
@@ -26,16 +28,23 @@ This republisher can be used to get around this problem.
 
  - You should use Fast-DDS as your RMW on the robot and throughout all your applications.
  This approach is not RMW-specific, but the instructions and the provided DDS config file are.
+ Use the webserver to check or modify the Create 3 robot RMW (see [webserver docs](https://iroboteducation.github.io/create3_docs/webserver/application/#application-configuration) for details)
 
  - Ensure that you can discover and communicate via ROS 2 between all your devices before starting.
- This procedure will use advanced communication configuration, and if stuff wasn't working before, it will be hard to debug it later.
- These instructions assume that you didn't need any custom DDS configuration to get communication working.
- If that's not the case, your custom configuration will likely need to be integrated with the provided XML config files, which is not covered by this tutorial.
+ For example:
+     - If using a RaspberryPi (or other SBC) try pinging the Create 3 robot via `usb0` interface with `ping 192.168.186.2`
+     - Verify that `ros2 topic list` shows the Create 3 robot topics
+
+This procedure will use advanced communication configuration, and if stuff wasn't working before, it will be hard to debug it later.
+These instructions assume that you didn't need any custom DDS configuration to get communication working.
+If that's not the case, your custom configuration will likely need to be integrated with the provided XML config files, which is not covered by this tutorial.
 
 ## Connecting the Create 3 Robot and an SBC via the republisher
 
 The following instructions will show how to isolate the robot to discover and communicate only with an entity, the republisher, and ignore all other processes running on your RaspberryPi (or other SBC).
 Other entities, e.g. your navigation application can then interact with the republisher (i.e. they can subscribe to Create 3 topics, and send requests) without "being discovered by it".
+This is the "default setup" for this republisher.
+The next sections will show examples on how to customize it for other common scenarios.
 
 1. Build this repository on the RaspberryPi (or other SBC).
 For example:
@@ -49,6 +58,7 @@ For example:
     ```
 
 1. Modify the Fast-DDS XML profile on the Create 3, through the webserver, to exactly match the [`fastdds-robot-passive-unicast.xml` profile](dds-config/fastdds-robot-passive-unicast.xml).
+See [webserver docs](https://iroboteducation.github.io/create3_docs/webserver/rmw-profile-override/) for details.
 
 1. Launch the republisher app in a terminal on your RaspberryPi (or other SBC) using the provided [`fastdds-active-unicast.xml` profile](dds-config/fastdds-active-unicast.xml).
 For example:
@@ -89,9 +99,9 @@ For example:
 With the setup described so far, you should have your RaspberryPi and your Create 3 robot able to communicate via ROS 2.
 However, your laptop (or other devices in the network) won't be able to discover neither the robot nor the SBC.
 To enable this communication, which again will occurr through the republisher, you will need a DDS configuration file also on your laptop (or other device).
-  - Get the Wi-Fi IP address of the RaspberryPi (that's the one you use to SSH into it).
-  - Create a copy of the [`fastdds-active-unicast.xml` profile](dds-config/fastdds-active-unicast.xml), which will be referenced as `fastdds-laptop-unicast.xml` in the following steps.
-  - Modify the new `fastdds-laptop-unicast.xml` file, replacing the IP address in the line `<address>192.168.186.2</address>` with the RaspberryPi IP address mentioned before.
+     - Get the Wi-Fi IP address of the RaspberryPi (that's the one you use to SSH into it).
+     - Create a copy of the [`fastdds-active-unicast.xml` profile](dds-config/fastdds-active-unicast.xml), which will be referenced as `fastdds-laptop-unicast.xml` in the following steps.
+     - Modify the new `fastdds-laptop-unicast.xml` file, replacing the IP address in the line `<address>192.168.186.2</address>` with the RaspberryPi IP address mentioned before.
   For example `<address>192.168.1.212</address>`.
 
 ## Connecting the Create 3 Robot and your laptop via the republisher
@@ -108,19 +118,18 @@ You will need to modify it to use the Wi-Fi IP address of the Create 3 instead.
 Note: these changes to the `fastdds-active-unicast.xml` profile are very similar to what done in the previous instructions to allow the laptop to communicate with the RaspberryPi.
 The only, but fundamental, difference is that here we are using the Create 3 IP address, rather than the RaspberryPi IP address.
 
-
 ### Notes and Tips
 
-##### Only the republisher should connect with the robot
+#### Only the republisher should connect with the robot
 
 **IMPORTANT: this republisher is powered by the concept of "unicast discovery" protocols. There must be only 1 DDS profile in your setup that references the Create 3 IP address and it must be used only by the republisher process.
 Keep this in mind if you need to do further modifications to the configs, besides what described in this page.**
 
-##### Ensure that your discovery info is up-to-date
+#### Ensure that your discovery info is up-to-date
 
 Run `ros2 daemon stop` whenever you modify DDS configuration file and/or environment variables.
 
-##### Why do I see the Create 3 names, but I can't communicate with them
+#### Why do I see the Create 3 names, but I can't communicate with them
 
 The "old" Create 3 entity names will not be usable anymore in this configuration.
 After running those steps, for example, you won't be able to subscribe to the robot tf topic via `ros2 topic echo /tf` but only via `ros2 topic echo /repub/tf`.
@@ -151,7 +160,7 @@ QoS profile:
   Liveliness lease duration: Infinite
 ```
 
-##### I have a navigation application with hardcoded Create 3 topic names and I don't want to change them
+#### I have a navigation application with hardcoded Create 3 topic names and I don't want to change them
 
 If you have a ROS 2 application that has hardcoded Create 3 topics and action names (e.g. `/cmd_vel` or `/my_create3/dock`), you don't necessarily need to modify it to use the republisher.
 Just change the Create 3 namespace to "something else" and set the republisher namespace as the old robot's namespace.
