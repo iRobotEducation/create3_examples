@@ -36,6 +36,8 @@ public:
             this->declare_parameter("services_timeout_sec", rclcpp::ParameterValue(60)).get<int>();
         m_actions_timeout_sec =
             this->declare_parameter("actions_timeout_sec", rclcpp::ParameterValue(600)).get<int>();
+        m_actions_period_ms =
+            this->declare_parameter("actions_period_ms", rclcpp::ParameterValue(50)).get<int>();
 
         const auto robot_namespace = this->get_robot_namespace();
         RCLCPP_INFO(
@@ -246,6 +248,8 @@ private:
     template <typename ActionT>
     void make_action_pair(const std::string & client_name, const std::string & server_name)
     {
+        auto action_timeout = std::chrono::seconds(m_actions_timeout_sec);
+        auto action_period = std::chrono::milliseconds(m_actions_period_ms);
         auto client = rclcpp_action::create_client<ActionT>(this, client_name, nullptr);
         auto server = rclcpp_action::create_server<ActionT>(
             this, server_name,
@@ -257,16 +261,16 @@ private:
             {
                 return rclcpp_action::CancelResponse::ACCEPT;
             },
-            [client=client, client_name](std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionT>> handle)
+            [action_timeout, action_period, client=client, client_name](std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionT>> handle)
             {
                 std::cerr<<"Forwarding action request to " << client_name << std::endl;
-                auto action_thread = std::thread([client=client, user_goal_handle=handle, client_name]()
+                auto action_thread = std::thread([action_timeout, action_period, client=client, user_goal_handle=handle, client_name]()
                 {
                     const auto user_goal = user_goal_handle->get_goal();
                     auto start_time = std::chrono::high_resolution_clock::now();
                     auto robot_goal_handle_fut = client->async_send_goal(*user_goal);
                     while(true) {
-                        if (std::chrono::high_resolution_clock::now() - start_time >= std::chrono::seconds(600)) {
+                        if (std::chrono::high_resolution_clock::now() - start_time >= action_timeout) {
                             std::cerr << "WARNING: ROS 2 action " << client_name <<" timed-out while it's still waiting for a goal handle from the robot" << std::endl;
                             user_goal_handle->abort(std::make_shared<typename ActionT::Result>());
                             return;
@@ -279,14 +283,14 @@ private:
                         if (robot_goal_handle_fut.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
                             break;
                         }
-                        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                        std::this_thread::sleep_for(action_period);
                     }
 
                     auto robot_goal_handle = robot_goal_handle_fut.get();
                     std::cerr<<"Action request " << client_name << " received goal handle from the robot" << std::endl;
                     auto result_fut = client->async_get_result(robot_goal_handle);
                     while(true) {
-                        if (std::chrono::high_resolution_clock::now() - start_time >= std::chrono::seconds(600)) {
+                        if (std::chrono::high_resolution_clock::now() - start_time >= action_timeout) {
                             std::cerr << "WARNING: ROS 2 action " << client_name <<" timed-out while running" << std::endl;
                             client->async_cancel_goal(robot_goal_handle);
                             user_goal_handle->abort(std::make_shared<typename ActionT::Result>());
@@ -301,7 +305,7 @@ private:
                         if (result_fut.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
                             break;
                         }
-                        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                        std::this_thread::sleep_for(action_period);
                     }
                     auto wrapped_result = result_fut.get();
                     if (wrapped_result.code == rclcpp_action::ResultCode::SUCCEEDED) {
@@ -357,6 +361,7 @@ private:
 
     int m_services_timeout_sec {60};
     int m_actions_timeout_sec {600};
+    int m_actions_period_ms {50};
     bool m_verbose {false};
 };
 
