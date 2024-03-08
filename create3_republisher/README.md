@@ -57,6 +57,7 @@ For example:
     source ~/ws/install/setup.sh
     export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
     export FASTRTPS_DEFAULT_PROFILES_FILE=~/ws/src/create3_examples/create3_republisher/dds-config/fastdds-active-unicast.xml
+    ros2 daemon stop
     ros2 launch create3_republisher create3_republisher_launch.py
     ```
 
@@ -79,6 +80,7 @@ For example:
     ```bash
     export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
     export FASTRTPS_DEFAULT_PROFILES_FILE=~/ws/src/create3_examples/create3_republisher/dds-config/fastdds-passive-unicast.xml
+    ros2 daemon stop
     ros2 topic echo /repub/tf
     ros2 action send_goal /repub/drive_distance irobot_create_msgs/action/DriveDistance "{distance: 0.5,max_translation_speed: 0.15}"
     ```
@@ -109,8 +111,16 @@ The only, but fundamental, difference is that here we are using the Create 3 IP 
 
 ### Notes and Tips
 
+##### Only the republisher should connect with the robot
+
 **IMPORTANT: this republisher is powered by the concept of "unicast discovery" protocols. There must be only 1 DDS profile in your setup that references the Create 3 IP address and it must be used only by the republisher process.
 Keep this in mind if you need to do further modifications to the configs, besides what described in this page.**
+
+##### Ensure that your discovery info is up-to-date
+
+Run `ros2 daemon stop` whenever you modify DDS configuration file and/or environment variables.
+
+##### Why do I see the Create 3 names, but I can't communicate with them
 
 The "old" Create 3 entity names will not be usable anymore in this configuration.
 After running those steps, for example, you won't be able to subscribe to the robot tf topic via `ros2 topic echo /tf` but only via `ros2 topic echo /repub/tf`.
@@ -141,8 +151,8 @@ QoS profile:
   Liveliness lease duration: Infinite
 ```
 
+##### I have a navigation application with hardcoded Create 3 topic names and I don't want to change them
 
-**TIP:**
 If you have a ROS 2 application that has hardcoded Create 3 topics and action names (e.g. `/cmd_vel` or `/my_create3/dock`), you don't necessarily need to modify it to use the republisher.
 Just change the Create 3 namespace to "something else" and set the republisher namespace as the old robot's namespace.
 For example, if you robot has a namespace `/my_create3` you can: first of all change its namespace to `/my_robot` and then run the republisher as:
