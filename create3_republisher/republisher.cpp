@@ -253,12 +253,14 @@ private:
         auto client = rclcpp_action::create_client<ActionT>(this, client_name, nullptr);
         auto server = rclcpp_action::create_server<ActionT>(
             this, server_name,
-            [](const rclcpp_action::GoalUUID &, std::shared_ptr<const typename ActionT::Goal>)
+            [client_name](const rclcpp_action::GoalUUID &, std::shared_ptr<const typename ActionT::Goal>)
             {
+                std::cerr<<"Received action request for " << client_name << std::endl;
                 return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
             },
-            [](std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionT>>)
+            [client_name](std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionT>>)
             {
+                std::cerr<<"Received action cancel request for " << client_name << std::endl;
                 return rclcpp_action::CancelResponse::ACCEPT;
             },
             [action_timeout, action_period, client=client, client_name](std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionT>> handle)

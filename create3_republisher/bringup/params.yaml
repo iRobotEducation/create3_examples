@@ -1,12 +1,12 @@
 /**:
   create3_repub:
     ros__parameters:
-      verbose: true
       # These lists define which ROS 2 entities should be republished from/to the Create 3 robot.
       # Tip: rather than deleting the ones that you are not interested in, try commenting them.
       # This will make it easier to re-enable them if they become needed.
       # Note: if you want to fully disable a category (e.g. the services), you'll need to comment out
       # all the associated lines in this file, and not only all the elements in the list
+      # NOTE: for best performance, uncomment only the entities that you need to interact with.
       robot_publishers: [
         "battery_state", "sensor_msgs/msg/BatteryState",
       # "cliff_intensity", "irobot_create_msgs/msg/IrIntensityVector",
