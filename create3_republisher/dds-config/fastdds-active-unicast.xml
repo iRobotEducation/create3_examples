@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<profiles xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
+    <transport_descriptors>
+        <transport_descriptor>
+            <transport_id>udp_transport</transport_id>
+            <type>UDPv4</type>
+            <!-- Reduce socket buffer size -->
+            <sendBufferSize>4096</sendBufferSize>
+            <receiveBufferSize>4096</receiveBufferSize>
+            <!-- Reduce max message size, otherwise the participant creation fails -->
+            <maxMessageSize>4096</maxMessageSize>
+        </transport_descriptor>
+    </transport_descriptors>
+    
+    <participant profile_name="unicast_discovery" is_default_profile="true">
+        <rtps>
+            <userTransports>
+                <transport_id>udp_transport</transport_id>
+            </userTransports>
+            <useBuiltinTransports>false</useBuiltinTransports>
+            <builtin>
+                <metatrafficUnicastLocatorList>
+                    <locator/>
+                </metatrafficUnicastLocatorList>
+                <initialPeersList>
+                    <locator>
+                        <udpv4>
+                            <address>127.0.0.1</address>
+                            <address>192.168.186.2</address>
+                        </udpv4>
+                    </locator>
+                </initialPeersList>
+            </builtin>
+        </rtps>
+    </participant>
+</profiles>
