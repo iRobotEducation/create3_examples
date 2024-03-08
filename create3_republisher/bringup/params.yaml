@@ -1,0 +1,49 @@
+/**:
+  create3_repub:
+    ros__parameters:
+      # These lists define which ROS 2 entities should be republished from/to the Create 3 robot.
+      # Tip: rather than deleting the ones that you are not interested in, try commenting them.
+      # This will make it easier to re-enable them if they become needed.
+      # Note: if you want to fully disable a category (e.g. the services), you'll need to comment out
+      # all the associated lines in this file, and not only all the elements in the list
+      # NOTE: for best performance, uncomment only the entities that you need to interact with.
+      robot_publishers: [
+        "battery_state", "sensor_msgs/msg/BatteryState",
+      # "cliff_intensity", "irobot_create_msgs/msg/IrIntensityVector",
+      # "dock_status", "irobot_create_msgs/msg/DockStatus",
+      # "hazard_detection", "irobot_create_msgs/msg/HazardDetectionVector",
+        "imu", "sensor_msgs/msg/Imu",
+      # "interface_buttons", "irobot_create_msgs/msg/InterfaceButtons",
+      # "ir_intensity", "irobot_create_msgs/msg/IrIntensityVector",
+      # "ir_opcode", "irobot_create_msgs/msg/IrOpcode",
+      # "kidnap_status", "irobot_create_msgs/msg/KidnapStatus",
+      # "mouse", "irobot_create_msgs/msg/Mouse",
+        "odom", "nav_msgs/msg/Odometry",
+      # "slip_status", "irobot_create_msgs/msg/SlipStatus",
+      # "stop_status", "irobot_create_msgs/msg/StopStatus",
+        "tf", "tf2_msgs/msg/TFMessage",
+        "tf_static", "tf2_msgs/msg/TFMessage",
+      # "wheel_status", "irobot_create_msgs/msg/WheelStatus",
+      # "wheel_ticks", "irobot_create_msgs/msg/WheelTicks",
+      # "wheel_vels", "irobot_create_msgs/msg/WheelVels",
+      ]
+      robot_subscriptions: [
+        "cmd_audio", "irobot_create_msgs/msg/AudioNoteVector",
+        "cmd_lightring", "irobot_create_msgs/msg/LightringLeds",
+        "cmd_vel", "geometry_msgs/msg/Twist",
+      ]
+      robot_services: [
+        "e_stop", "irobot_create_msgs/srv/EStop",
+        "robot_power", "irobot_create_msgs/srv/RobotPower",
+      ]
+      robot_actions: [
+        "audio_note_sequence", "irobot_create_msgs/action/AudioNoteSequence",
+        "dock", "irobot_create_msgs/action/Dock",
+        "drive_arc", "irobot_create_msgs/action/DriveArc",
+        "drive_distance", "irobot_create_msgs/action/DriveDistance",
+        "led_animation", "irobot_create_msgs/action/LedAnimation",
+        "navigate_to_position", "irobot_create_msgs/action/NavigateToPosition",
+        "rotate_angle", "irobot_create_msgs/action/RotateAngle",
+        "undock", "irobot_create_msgs/action/Undock",
+        "wall_follow", "irobot_create_msgs/action/WallFollow",
+      ]

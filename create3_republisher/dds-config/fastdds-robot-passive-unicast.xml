@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dds xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
+    <profiles>
+        <!-- UDPv4 Transport profile -->
+        <transport_descriptors>
+            <transport_descriptor>
+                <transport_id>udp_transport</transport_id>
+                <type>UDPv4</type>
+                <!-- Reduce socket buffer size -->
+                <sendBufferSize>4096</sendBufferSize>
+                <receiveBufferSize>4096</receiveBufferSize>
+                <!-- Reduce max message size, otherwise the participant creation fails -->
+                <maxMessageSize>4096</maxMessageSize>
+            </transport_descriptor>
+        </transport_descriptors>
+
+        <!-- Domain Participant Profile -->
+        <participant profile_name="domainparticipant_profile_name" is_default_profile="true">
+            <rtps>
+                <!-- Use user defined UDPv4 transport -->
+                <userTransports>
+                    <transport_id>udp_transport</transport_id>
+                </userTransports>
+                <!-- Disable builtin transports -->
+                <useBuiltinTransports>false</useBuiltinTransports>
+                <builtin>
+                    <metatrafficUnicastLocatorList>
+                        <locator/>
+                    </metatrafficUnicastLocatorList>
+                    <initialPeersList>
+                        <locator>
+                            <udpv4>
+                                <address>127.0.0.1</address>
+                            </udpv4>
+                        </locator>
+                    </initialPeersList>
+                </builtin>
+            </rtps>
+        </participant>
+
+        <!-- Default publisher profile -->
+        <data_writer profile_name="default_publisher_profile" is_default_profile="true">
+            <topic>
+                <!-- Tune initial allocations -->
+                <resourceLimitsQos>
+                    <max_samples>0</max_samples>
+                    <allocated_samples>0</allocated_samples>
+                </resourceLimitsQos>
+            </topic>
+        </data_writer>
+
+        <!-- Default subscriber profile -->
+        <data_reader profile_name="default_subscriber_profile" is_default_profile="true">
+            <topic>
+                <!-- Tune initial allocations -->
+                <resourceLimitsQos>
+                    <max_samples>0</max_samples>
+                    <allocated_samples>0</allocated_samples>
+                </resourceLimitsQos>
+            </topic>
+        </data_reader>
+    </profiles>
+</dds>
